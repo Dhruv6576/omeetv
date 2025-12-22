@@ -3,71 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Omegle Clone</title>
+  <title>Omegle X - Modern Chat</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ===== JOIN SCREEN ===== -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
 <div id="nameBox" class="overlay">
-  <div class="join-card">
-    <h2>Talk to strangers</h2>
-    <p>Enter your name to continue</p>
-    <input id="nameInput" type="text" placeholder="Your name" />
-    <button id="joinBtn">Continue</button>
+  <div class="glass-card join-card">
+    <div class="icon-header">
+      <i class="ri-vidicon-line"></i>
+    </div>
+    <h2>Welcome to Omegle X</h2>
+    <p>Connect with random people instantly.</p>
+    
+    <div class="input-group">
+      <i class="ri-user-smile-line"></i>
+      <input id="nameInput" type="text" placeholder="Enter your nickname..." autocomplete="off"/>
+    </div>
+    
+    <button id="joinBtn" class="primary-btn">
+      Enter World <i class="ri-arrow-right-line"></i>
+    </button>
   </div>
 </div>
 
-<!-- ===== MAIN APP ===== -->
 <div id="app" style="display:none;">
 
-  <!-- HEADER -->
-  <header>
-    <h1>Omegle Clone</h1>
-    <p id="status">Click Start</p>
-    <p id="onlineCount">Online: 0</p>
+  <header class="app-header">
+    <div class="logo">
+      <i class="ri-global-line"></i> <span>Omegle X</span>
+    </div>
+    
+    <div class="status-pill">
+      <span class="dot"></span>
+      <p id="status">Ready to connect</p>
+    </div>
 
+    <div class="online-badge">
+      <i class="ri-user-voice-line"></i>
+      <p id="onlineCount">Online: 0</p>
+    </div>
   </header>
 
-  <!-- CONTENT -->
-  <main>
+  <main class="main-grid">
 
-    <!-- VIDEOS -->
-    <div class="videos">
-      <div class="video-box">
-        <span>You</span>
-        <video id="localVideo" autoplay muted playsinline></video>
+    <section class="video-section">
+      <div class="video-grid">
+        <div class="video-card">
+          <span class="video-label">You</span>
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="video-overlay"></div>
+        </div>
+
+        <div class="video-card stranger">
+          <span class="video-label">Stranger</span>
+          <div class="waiting-placeholder">
+            <i class="ri-loader-4-line spin"></i>
+            <p>Waiting for match...</p>
+          </div>
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="video-overlay"></div>
+        </div>
       </div>
 
-      <div class="video-box">
-        <span>Stranger</span>
-        <video id="remoteVideo" autoplay playsinline></video>
+      <div class="controls-bar">
+        <button id="startBtn" class="ctrl-btn start">
+          <i class="ri-play-fill"></i> <span>Start</span>
+        </button>
+        
+        <button id="nextBtn" class="ctrl-btn next" disabled>
+          <i class="ri-skip-forward-fill"></i> <span>Next</span>
+        </button>
+        
+        <button id="stopBtn" class="ctrl-btn stop" disabled>
+          <i class="ri-stop-fill"></i> <span>Stop</span>
+        </button>
       </div>
-    </div>
+    </section>
 
-    <!-- CHAT -->
-    <div class="chat">
-      <div id="messages"></div>
-      <input
-        id="messageInput"
-        type="text"
-        placeholder="Type a message..."
-        disabled
-      />
-    </div>
+    <aside class="chat-section glass-card">
+      <div class="chat-header">
+        <h3>Live Chat</h3>
+        <i class="ri-message-3-line"></i>
+      </div>
+
+      <div id="messages" class="messages-area">
+        <div class="system-msg">Welcome! Press Start to find a partner.</div>
+      </div>
+
+      <div class="chat-input-area">
+        <input
+          id="messageInput"
+          type="text"
+          placeholder="Type a message..."
+          disabled
+          autocomplete="off"
+        />
+        <button id="sendBtnFake" class="send-icon"> <i class="ri-send-plane-fill"></i>
+        </button>
+      </div>
+    </aside>
 
   </main>
 
-  <!-- CONTROLS -->
-  <footer>
-    <button id="startBtn">Start</button>
-    <button id="nextBtn" disabled>Next</button>
-    <button id="stopBtn" disabled>Stop</button>
-  </footer>
-
 </div>
 
-<!-- SCRIPTS -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
 
