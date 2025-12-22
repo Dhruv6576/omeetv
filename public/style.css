@@ -2,10 +2,9 @@
    1. VARIABLES & RESET
    ========================================= */
 :root {
-  /* Modern Dark Palette */
   --bg-color: #0f172a;
   --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   --accent-color: #38bdf8;
   --text-main: #f8fafc;
@@ -13,7 +12,6 @@
   --danger: #ef4444;
   --success: #22c55e;
   
-  /* Spacing */
   --radius-lg: 16px;
   --radius-md: 12px;
 }
@@ -23,114 +21,73 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-main);
-  height: 100vh;
-  overflow: hidden; /* Prevent full page scroll, handle inside components */
+  height: 100dvh; /* Dynamic height for mobile browsers */
+  overflow: hidden; 
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 /* =========================================
-   2. ANIMATED BACKGROUND BLOBS
+   2. ANIMATIONS & BACKGROUND
    ========================================= */
 .blob {
   position: absolute;
   filter: blur(80px);
-  opacity: 0.4;
+  opacity: 0.3;
   z-index: -1;
   border-radius: 50%;
   animation: float 10s infinite ease-in-out;
 }
-
-.blob-1 {
-  top: -10%;
-  left: -10%;
-  width: 500px;
-  height: 500px;
-  background: #4f46e5;
-}
-
-.blob-2 {
-  bottom: -10%;
-  right: -10%;
-  width: 600px;
-  height: 600px;
-  background: #c026d3;
-  animation-delay: 2s;
-}
+.blob-1 { top: -10%; left: -10%; width: 300px; height: 300px; background: #4f46e5; }
+.blob-2 { bottom: -10%; right: -10%; width: 300px; height: 300px; background: #c026d3; }
 
 @keyframes float {
-  0% { transform: translate(0, 0); }
-  50% { transform: translate(30px, 50px); }
-  100% { transform: translate(0, 0); }
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, 40px); }
 }
 
-/* =========================================
-   3. GLASSMORPHISM UTILITY
-   ========================================= */
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 /* =========================================
-   4. JOIN SCREEN (OVERLAY)
+   3. JOIN SCREEN
    ========================================= */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  padding: 20px;
 }
 
 .join-card {
   width: 100%;
-  max-width: 400px;
-  padding: 40px;
+  max-width: 350px;
+  border-radius: var(--radius-lg);
+  padding: 30px;
   text-align: center;
-  animation: slideUp 0.5s ease-out;
 }
 
-.icon-header i {
-  font-size: 3rem;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+.icon-header i { font-size: 3rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.join-card h2 { margin: 10px 0; font-size: 1.5rem; }
+.join-card p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
 
-.join-card h2 {
-  margin: 15px 0 5px;
-  font-size: 1.8rem;
-}
-
-.join-card p {
-  color: var(--text-muted);
-  margin-bottom: 30px;
-}
-
-.input-group {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.input-group i {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-}
+.input-group { position: relative; margin-bottom: 20px; }
+.input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
 .join-card input {
   width: 100%;
@@ -139,14 +96,8 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   color: white;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents zoom on iOS */
   outline: none;
-  transition: 0.3s;
-}
-
-.join-card input:focus {
-  border-color: #6366f1;
-  background: rgba(255, 255, 255, 0.1);
 }
 
 .primary-btn {
@@ -157,296 +108,171 @@ body {
   border-radius: var(--radius-md);
   color: white;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: transform 0.2s;
-}
-
-.primary-btn:hover {
-  transform: scale(1.02);
 }
 
 /* =========================================
-   5. APP HEADER
+   4. APP HEADER
    ========================================= */
 .app-header {
+  height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
-  background: rgba(15, 23, 42, 0.6);
+  padding: 0 15px;
+  background: rgba(15, 23, 42, 0.8);
   border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
 }
 
-.logo {
-  font-size: 1.2rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: white;
+.logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+.status-pill { 
+  display: none; /* Hidden on mobile */
 }
 
-.status-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.05);
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--glass-border);
+@media (min-width: 600px) {
+  .status-pill {
+    display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+    background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px;
+  }
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--text-muted);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--text-muted);
-  transition: 0.3s;
-}
+.dot { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; transition: 0.3s; }
+.dot.active { background: var(--success); box-shadow: 0 0 10px var(--success); }
 
-/* Dynamic Status Colors (JS can toggle classes if needed, but styling is here) */
-.dot.active { background-color: var(--success); box-shadow: 0 0 10px var(--success); }
-.dot.busy { background-color: var(--danger); box-shadow: 0 0 10px var(--danger); }
-
-.online-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--accent-color);
-  font-size: 0.9rem;
-}
+.online-badge { display: flex; align-items: center; gap: 5px; color: var(--accent-color); font-size: 0.9rem; }
 
 /* =========================================
-   6. MAIN LAYOUT GRID
+   5. MAIN LAYOUT
    ========================================= */
 .main-grid {
-  display: grid;
-  grid-template-columns: 1fr 350px; /* Video Area | Chat Area */
-  gap: 20px;
-  padding: 20px;
-  height: calc(100vh - 70px); /* Full height minus header */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
 }
 
-/* =========================================
-   7. VIDEO SECTION
-   ========================================= */
+/* Video Area */
 .video-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  height: 100%;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .video-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  display: flex;
+  flex-direction: column; /* Stack vertically on mobile */
+  gap: 10px;
 }
 
 .video-card {
   background: black;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  border-radius: var(--radius-md);
   position: relative;
+  overflow: hidden;
   border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-video {
+  aspect-ratio: 4/3; 
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1); /* Mirror effect */
+  /* Max height on mobile to leave room for chat */
+  max-height: 25vh; 
 }
 
-/* Labels on Video */
+video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+
 .video-label {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  z-index: 10;
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(0,0,0,0.6); padding: 4px 10px;
+  border-radius: 6px; font-size: 0.75rem; z-index: 10;
 }
 
-/* Waiting State */
+/* Waiting Overlay */
 .waiting-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #000; z-index: 5;
   color: var(--text-muted);
-  z-index: 5;
 }
-
-.spin {
-  animation: spin 2s linear infinite;
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
+.spin { animation: spin 2s linear infinite; font-size: 2rem; margin-bottom: 10px; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* =========================================
-   8. CONTROLS BAR
-   ========================================= */
+/* Controls */
 .controls-bar {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 15px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  padding: 10px;
   background: var(--glass-bg);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
 }
 
 .ctrl-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 10px;
+  border: none; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-  color: white;
+  display: flex; flex-direction: column; align-items: center;
+  color: white; gap: 5px;
 }
-
-.ctrl-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  filter: grayscale(1);
-}
+.ctrl-btn i { font-size: 1.2rem; }
 
 .start { background: var(--success); }
-.start:hover:not(:disabled) { box-shadow: 0 0 15px var(--success); }
-
 .next { background: var(--accent-color); color: #0f172a; }
-.next:hover:not(:disabled) { box-shadow: 0 0 15px var(--accent-color); }
-
 .stop { background: var(--danger); }
-.stop:hover:not(:disabled) { box-shadow: 0 0 15px var(--danger); }
+.ctrl-btn:disabled { opacity: 0.5; filter: grayscale(1); }
 
-/* =========================================
-   9. CHAT SECTION
-   ========================================= */
+/* Chat Area */
 .chat-section {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  flex: 1;
+  display: flex; flex-direction: column;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
 .chat-header {
-  padding: 15px;
-  border-bottom: 1px solid var(--glass-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(0,0,0,0.2);
+  padding: 10px 15px; font-size: 0.9rem;
+  background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border);
+  display: flex; justify-content: space-between;
 }
 
 .messages-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex: 1; overflow-y: auto; padding: 10px;
+  display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;
 }
 
-/* Scrollbar Styling */
-.messages-area::-webkit-scrollbar { width: 6px; }
-.messages-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+.messages-area div { word-break: break-word; }
 
-.system-msg {
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin: 10px 0;
-  font-style: italic;
-}
-
-/* Chat Input */
 .chat-input-area {
-  padding: 15px;
-  border-top: 1px solid var(--glass-border);
-  display: flex;
-  gap: 10px;
-  background: rgba(0,0,0,0.2);
+  padding: 10px; background: rgba(0,0,0,0.3);
+  display: flex; gap: 10px; align-items: center;
 }
 
 .chat-input-area input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: white;
-  outline: none;
-  font-size: 0.95rem;
+  flex: 1; background: transparent; border: none;
+  color: white; font-size: 16px; outline: none;
 }
 
 .send-icon {
-  background: none;
-  border: none;
-  color: var(--accent-color);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: transform 0.2s;
+  background: none; border: none; color: var(--accent-color);
+  font-size: 1.5rem; cursor: pointer;
 }
-
-.send-icon:hover { transform: translateX(3px); }
 
 /* =========================================
-   10. RESPONSIVE DESIGN (MOBILE)
+   6. DESKTOP RESPONSIVE
    ========================================= */
-@media (max-width: 900px) {
-  .main-grid {
-    grid-template-columns: 1fr; /* Stack vertically */
-    grid-template-rows: 1fr 1fr; /* Equal split or adjust */
-    height: auto;
-    overflow-y: auto;
-  }
-  
-  .chat-section {
-    height: 400px; /* Fixed height for chat on mobile */
-  }
-}
-
-@media (max-width: 600px) {
-  .video-grid {
-    grid-template-columns: 1fr; /* Stack videos */
-    height: auto;
-  }
-
-  .video-card {
-    height: 250px;
-  }
-  
-  .controls-bar {
-    flex-wrap: wrap;
-  }
-  
-  .ctrl-btn {
-    flex: 1;
-    justify-content: center;
-  }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@media (min-width: 900px) {
+  .main-grid { flex-direction: row; }
+  .video-section { flex: 2; height: 100%; }
+  .video-grid { flex-direction: row; flex: 1; }
+  .video-card { max-height: none; aspect-ratio: auto; }
+  .controls-bar { display: flex; justify-content: center; }
+  .ctrl-btn { flex-direction: row; padding: 12px 24px; width: auto; }
+  .chat-section { flex: 1; }
 }

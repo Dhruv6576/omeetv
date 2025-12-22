@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Omegle X - Modern Chat</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +45,7 @@
     </div>
     
     <div class="status-pill">
-      <span class="dot"></span>
+      <span class="dot" id="statusDot"></span>
       <p id="status">Ready to connect</p>
     </div>
 
@@ -62,17 +62,17 @@
         <div class="video-card">
           <span class="video-label">You</span>
           <video id="localVideo" autoplay muted playsinline></video>
-          <div class="video-overlay"></div>
         </div>
 
         <div class="video-card stranger">
           <span class="video-label">Stranger</span>
-          <div class="waiting-placeholder">
+          
+          <div id="waitMsg" class="waiting-placeholder">
             <i class="ri-loader-4-line spin"></i>
             <p>Waiting for match...</p>
           </div>
+          
           <video id="remoteVideo" autoplay playsinline></video>
-          <div class="video-overlay"></div>
         </div>
       </div>
 
@@ -109,13 +109,13 @@
           disabled
           autocomplete="off"
         />
-        <button id="sendBtnFake" class="send-icon"> <i class="ri-send-plane-fill"></i>
+        <button id="sendBtn" class="send-icon"> 
+          <i class="ri-send-plane-fill"></i>
         </button>
       </div>
     </aside>
 
   </main>
-
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

@@ -6,6 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Serve files from the "public" folder
 app.use(express.static("public"));
 
 // ===== STATE =====
