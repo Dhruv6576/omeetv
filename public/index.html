@@ -1,36 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Omegle Clone</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>Talk to strangers!</h1>
-  <p id="status">Click Start</p>
-</header>
-
-<main>
-  <div class="videos">
-    <video id="localVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay></video>
+<!-- ===== JOIN SCREEN ===== -->
+<div id="nameBox" class="overlay">
+  <div class="join-card">
+    <h2>Talk to strangers</h2>
+    <p>Enter your name to continue</p>
+    <input id="nameInput" type="text" placeholder="Your name" />
+    <button id="joinBtn">Continue</button>
   </div>
+</div>
 
-  <div class="chat">
-    <div id="messages"></div>
-    <input id="messageInput" placeholder="Type message..." disabled>
-  </div>
-</main>
+<!-- ===== MAIN APP ===== -->
+<div id="app" style="display:none;">
 
-<footer>
-  <button id="startBtn">Start</button>
-  <button id="nextBtn" disabled>Next</button>
-  <button id="stopBtn" disabled>Stop</button>
-</footer>
+  <!-- HEADER -->
+  <header>
+    <h1>Omegle Clone</h1>
+    <p id="status">Click Start</p>
+  </header>
 
+  <!-- CONTENT -->
+  <main>
+
+    <!-- VIDEOS -->
+    <div class="videos">
+      <div class="video-box">
+        <span>You</span>
+        <video id="localVideo" autoplay muted playsinline></video>
+      </div>
+
+      <div class="video-box">
+        <span>Stranger</span>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat">
+      <div id="messages"></div>
+      <input
+        id="messageInput"
+        type="text"
+        placeholder="Type a message..."
+        disabled
+      />
+    </div>
+
+  </main>
+
+  <!-- CONTROLS -->
+  <footer>
+    <button id="startBtn">Start</button>
+    <button id="nextBtn" disabled>Next</button>
+    <button id="stopBtn" disabled>Stop</button>
+  </footer>
+
+</div>
+
+<!-- SCRIPTS -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
+
 </body>
 </html>

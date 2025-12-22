@@ -8,21 +8,26 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
-let waitingQueue = [];
+let queue = [];
 
 function removeFromQueue(socket) {
-  waitingQueue = waitingQueue.filter(s => s.id !== socket.id);
+  queue = queue.filter(s => s.id !== socket.id);
 }
 
 io.on("connection", socket => {
-  console.log("User connected:", socket.id);
-
   socket.partner = null;
+  socket.username = null;
+
+  console.log("Connected:", socket.id);
+
+  socket.on("join", username => {
+    socket.username = username;
+  });
 
   socket.on("find-partner", () => {
     removeFromQueue(socket);
 
-    const partner = waitingQueue.find(s => s.id !== socket.id);
+    const partner = queue.find(s => s.id !== socket.id);
 
     if (partner) {
       removeFromQueue(partner);
@@ -30,34 +35,41 @@ io.on("connection", socket => {
       socket.partner = partner;
       partner.partner = socket;
 
-      socket.emit("partner-found");
-      partner.emit("partner-found");
+      // IMPORTANT: decide caller / callee
+      socket.emit("partner-found", {
+        role: "caller",
+        partnerName: partner.username
+      });
+
+      partner.emit("partner-found", {
+        role: "callee",
+        partnerName: socket.username
+      });
     } else {
-      waitingQueue.push(socket);
+      queue.push(socket);
       socket.emit("waiting");
     }
   });
 
-  // WebRTC signaling
   socket.on("signal", data => {
     if (socket.partner) {
       socket.partner.emit("signal", data);
     }
   });
 
-  // Text chat
   socket.on("chat-message", msg => {
     if (socket.partner) {
-      socket.partner.emit("chat-message", msg);
+      socket.partner.emit("chat-message", {
+        from: socket.username,
+        text: msg
+      });
     }
   });
 
-  // Next button
   socket.on("next", () => {
     if (socket.partner) {
       socket.partner.emit("partner-left");
       socket.partner.partner = null;
-      socket.partner = null;
     }
     socket.partner = null;
     removeFromQueue(socket);
