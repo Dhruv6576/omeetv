@@ -11,13 +11,13 @@
   --muted: #94a3b8;
   --red: #ef4444;
   --green: #22c55e;
+  --yellow: #eab308;
   
   --radius: 14px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-/* MOBILE DEFAULT: Allow Vertical Scrolling, Block Horizontal Shaking */
 body {
   background: var(--bg-dark);
   color: var(--text);
@@ -31,8 +31,14 @@ body {
   flex-direction: column;
 }
 
+/* NEW: Class to freeze body scrolling when Sidebar is open */
+body.lock-scroll {
+  overflow: hidden !important;
+  height: 100dvh !important;
+}
+
 /* =========================================
-   2. BACKGROUND BLOBS
+   2. BACKGROUND BLOBS & JOIN OVERLAY
    ========================================= */
 .blob { position: absolute; filter: blur(90px); opacity: 0.25; z-index: -1; border-radius: 50%; }
 .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #4f46e5; animation: move 15s infinite; }
@@ -40,12 +46,9 @@ body {
 
 @keyframes move { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(30px, 30px); } }
 
-/* =========================================
-   3. JOIN OVERLAY
-   ========================================= */
 .overlay {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.96);
-  display: flex; align-items: center; justify-content: center; z-index: 1000;
+  display: flex; align-items: center; justify-content: center; z-index: 2000;
   padding: 20px;
 }
 .glass-card {
@@ -56,7 +59,6 @@ body {
 .icon-header i { font-size: 3.5rem; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .join-card h2 { margin: 10px 0; font-size: 1.8rem; }
 .join-card p { color: var(--muted); margin-bottom: 25px; }
-
 .input-group { position: relative; margin-bottom: 20px; }
 .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .join-card input {
@@ -69,95 +71,56 @@ body {
   border: none; border-radius: 12px; color: white; font-weight: 600; font-size: 1rem;
   display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
 }
-
-/* NEW: Privacy Note Styling */
 .privacy-note {
-  margin-top: 20px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
+  margin-top: 20px; padding: 12px; background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
 }
-.privacy-note i {
-  font-size: 1.2rem;
-  color: var(--green);
-}
-.privacy-note p {
-  font-size: 0.75rem;
-  color: #cbd5e1;
-  margin: 0;
-  line-height: 1.4;
-}
+.privacy-note i { font-size: 1.2rem; color: var(--green); }
+.privacy-note p { font-size: 0.75rem; color: #cbd5e1; margin: 0; line-height: 1.4; }
+
+/* MODAL BUTTONS */
+.modal-actions { display: flex; gap: 15px; margin-top: 15px; }
+.modal-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; color: #fff; }
+.accept { background: var(--green); }
+.decline { background: var(--red); }
 
 /* =========================================
-   4. APP STRUCTURE
+   3. APP STRUCTURE & LAYOUT
    ========================================= */
-#app { 
-  display: flex; 
-  flex-direction: column; 
-  width: 100%;
-  max-width: 100vw; 
-}
+#app { display: flex; flex-direction: column; width: 100%; max-width: 100vw; position: relative; }
 
-/* HEADER */
 .app-header {
   height: 60px; flex-shrink: 0; 
   display: flex; justify-content: space-between; align-items: center;
   padding: 0 20px; background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-  width: 100%;
+  position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); width: 100%;
 }
 .logo { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
 .status-pill { display: none; }
 .online-badge { color: var(--accent); font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
 
-/* MAIN LAYOUT - Mobile Stacked */
-.main-layout {
-  display: flex; 
-  flex-direction: column; 
-  padding: 10px; gap: 20px;
-  width: 100%;
-}
+.main-layout { display: flex; flex-direction: column; padding: 10px; gap: 20px; width: 100%; }
 
 /* =========================================
-   5. VIDEO SECTION (SCREEN 1)
+   4. VIDEO SECTION & CONTROLS
    ========================================= */
 .video-container {
   display: flex; flex-direction: column; gap: 10px;
-  height: calc(100dvh - 80px); 
-  flex-shrink: 0;
-  width: 100%;
+  height: calc(100dvh - 80px); flex-shrink: 0; width: 100%;
 }
-
-.video-grid {
-  display: flex; gap: 10px;
-  flex-direction: column; 
-  flex: 1; 
-  min-height: 0;
-  width: 100%;
-}
-
+.video-grid { display: flex; gap: 10px; flex-direction: column; flex: 1; min-height: 0; width: 100%; }
 .video-wrapper {
-  flex: 1; 
-  width: 100%; 
-  background: #000; border-radius: var(--radius);
+  flex: 1; width: 100%; background: #000; border-radius: var(--radius);
   position: relative; overflow: hidden; border: 1px solid var(--border);
 }
-
 video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-
 .label {
   position: absolute; top: 8px; left: 8px;
   background: rgba(0,0,0,0.6); padding: 4px 10px;
   border-radius: 6px; font-size: 0.7rem; z-index: 10;
   max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-
-/* WAITING SPINNER */
 .waiting-layer {
   position: absolute; inset: 0; background: #1a1a1a;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -170,18 +133,9 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* CONTROLS BAR */
-.controls-bar {
-  display: flex; gap: 10px;
-  height: 50px; 
-  flex-shrink: 0;
-  width: 100%;
-}
-
+.controls-bar { display: flex; gap: 10px; height: 50px; flex-shrink: 0; width: 100%; }
 .btn {
-  flex: 1; padding: 0;
-  height: 100%; 
-  border: none; border-radius: 12px;
+  flex: 1; padding: 0; height: 100%; border: none; border-radius: 12px;
   color: white; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -189,117 +143,95 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .start { background: var(--green); }
 .next { background: var(--accent); color: #0f172a; }
 .stop { background: var(--red); }
+.find { background: var(--yellow); color: #0f172a; }
 .btn:disabled { opacity: 0.5; filter: grayscale(1); }
 
 /* =========================================
-   6. CHAT SECTION (SCREEN 2 - SCROLL DOWN)
+   5. CHAT SECTION
    ========================================= */
 .chat-container {
-  height: 85vh; 
-  background: var(--glass); border: 1px solid var(--border);
-  border-radius: var(--radius);
-  display: flex; flex-direction: column;
-  overflow: hidden; 
-  flex-shrink: 0;
-  width: 100%;
+  height: 85vh; background: var(--glass); border: 1px solid var(--border);
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0; width: 100%;
 }
-
 .chat-header {
   padding: 10px 15px; border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.2); font-size: 0.9rem; display: flex; justify-content: space-between;
-  flex-shrink: 0; 
+  background: rgba(0,0,0,0.2); font-size: 0.9rem; display: flex; justify-content: space-between; flex-shrink: 0; 
 }
-
 .messages-list {
-  flex: 1; 
-  overflow-y: auto; 
-  padding: 15px; display: flex; flex-direction: column; gap: 10px;
-  min-height: 0; 
-  scroll-behavior: smooth;
+  flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
+  min-height: 0; scroll-behavior: smooth;
 }
-
-/* Bubbles */
-.msg-box { 
-  padding: 10px 14px; 
-  border-radius: 10px; 
-  max-width: 85%; 
-  font-size: 0.9rem; 
-  word-break: break-word; 
-  line-height: 1.4;
-}
-
-.my-msg { 
-  align-self: flex-end; 
-  background: rgba(99, 102, 241, 0.2); 
-  border: 1px solid rgba(99, 102, 241, 0.4); 
-}
-
-.stranger-msg { 
-  align-self: flex-start; 
-  background: rgba(255, 255, 255, 0.15); 
-  border: 1px solid rgba(255, 255, 255, 0.3); 
-  color: #fff; 
-}
-
+.msg-box { padding: 10px 14px; border-radius: 10px; max-width: 85%; font-size: 0.9rem; word-break: break-word; line-height: 1.4; }
+.my-msg { align-self: flex-end; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); }
+.stranger-msg { align-self: flex-start; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #fff; }
 .system-msg { text-align: center; font-size: 0.8rem; color: var(--muted); opacity: 0.8; margin: 10px 0; }
-
 .chat-input-wrapper {
   padding: 10px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border);
-  display: flex; gap: 10px; align-items: center;
-  flex-shrink: 0; 
+  display: flex; gap: 10px; align-items: center; flex-shrink: 0; 
 }
-.chat-input-wrapper input {
-  flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px;
-}
+.chat-input-wrapper input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; }
 .send-btn { background: none; border: none; color: var(--accent); font-size: 1.4rem; cursor: pointer; padding: 0 5px; }
 
 /* =========================================
-   7. DESKTOP / WINDOW OVERRIDES (PROTECTED)
+   6. SIDEBAR
+   ========================================= */
+.sidebar {
+  position: fixed; top: 0; right: -100%;
+  width: 85%; max-width: 350px; height: 100%;
+  background: rgba(15, 23, 42, 0.98); border-left: 1px solid var(--border);
+  backdrop-filter: blur(20px); z-index: 1000;
+  transition: right 0.3s ease-in-out;
+  display: flex; flex-direction: column;
+}
+.sidebar.active { right: 0; }
+
+.sidebar-header {
+  height: 60px; padding: 0 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-header h3 { font-size: 1rem; }
+.sidebar-header button {
+  background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer;
+}
+
+.user-list {
+  flex: 1; 
+  overflow-y: auto; 
+  padding: 15px;
+  display: flex; flex-direction: column; gap: 10px;
+  
+  /* FIX: Prevents scroll from passing to body */
+  overscroll-behavior: contain; 
+  -webkit-overflow-scrolling: touch; 
+}
+
+.user-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+.user-info i { font-size: 1.2rem; color: var(--muted); }
+
+.status-badge {
+  font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 500;
+}
+.status-finding { background: rgba(34, 197, 94, 0.2); color: var(--green); cursor: pointer; border: 1px solid var(--green); }
+.status-busy { background: rgba(239, 68, 68, 0.2); color: var(--red); border: 1px solid var(--red); opacity: 0.7; }
+
+/* =========================================
+   7. DESKTOP OVERRIDES
    ========================================= */
 @media (min-width: 768px) {
-  
-  body {
-    height: 100dvh;
-    overflow: hidden; 
-  }
-
+  body { height: 100dvh; overflow: hidden; }
   #app { height: 100%; }
-
-  .main-layout { 
-    flex-direction: row; 
-    height: calc(100% - 60px); 
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .video-container { 
-    flex: 2; 
-    height: 100%; 
-    min-height: 0;
-  }
-
-  /* Side-by-Side 50/50 */
-  .video-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 10px;
-    height: 100%;
-    width: 100%;
-    flex: 1;
-  }
+  .main-layout { flex-direction: row; height: calc(100% - 60px); padding: 10px; gap: 10px; }
+  .video-container { flex: 2; height: 100%; min-height: 0; }
+  .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 100%; width: 100%; flex: 1; }
+  .video-wrapper { height: 100%; width: 100%; aspect-ratio: auto; }
+  .chat-container { flex: 1; height: 100%; margin-top: 0; }
   
-  .video-wrapper { 
-    height: 100%; 
-    width: 100%;
-    aspect-ratio: auto; 
-  }
-
-  .chat-container {
-    flex: 1; 
-    height: 100%;
-    margin-top: 0;
-  }
-
   .status-pill { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
   .dot { width: 8px; height: 8px; background: var(--muted); border-radius: 50%; }
   .dot.active { background: var(--green); box-shadow: 0 0 10px var(--green); }

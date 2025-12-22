@@ -42,7 +42,36 @@
           Please allow camera/mic access to verify you are human.
         </p>
       </div>
+    </div>
+  </div>
 
+  <div id="requestModal" class="overlay" style="display: none;">
+    <div class="glass-card">
+      <div class="icon-header">
+        <i class="ri-notification-3-line"></i>
+      </div>
+      <h3>Incoming Request</h3>
+      <p style="margin-bottom: 20px;">
+        <strong id="requesterName" style="color: var(--accent);">User</strong> wants to connect with you.
+      </p>
+      
+      <div class="modal-actions">
+        <button id="declineBtn" class="btn modal-btn decline">Decline</button>
+        <button id="acceptBtn" class="btn modal-btn accept">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="outgoingModal" class="overlay" style="display: none;">
+    <div class="glass-card">
+      <div class="loader" style="margin: 0 auto 20px auto; width: 50px; height: 50px;"></div>
+      
+      <h3>Request Sent</h3>
+      <p style="margin-bottom: 20px;">
+        Waiting for <strong id="outgoingTargetName" style="color: var(--yellow);">User</strong> to accept...
+      </p>
+      
+      <button id="cancelRequestBtn" class="btn modal-btn decline" style="width: 100%;">Cancel</button>
     </div>
   </div>
 
@@ -89,6 +118,10 @@
           <button id="startBtn" class="btn start">
             <i class="ri-play-fill"></i> <span>Start</span>
           </button>
+
+          <button id="findBtn" class="btn find" disabled>
+            <i class="ri-search-eye-line"></i> <span>Find</span>
+          </button>
           
           <button id="nextBtn" class="btn next" disabled>
             <i class="ri-skip-forward-fill"></i> <span>Next</span>
@@ -111,13 +144,7 @@
         </div>
 
         <div class="chat-input-wrapper">
-          <input
-            id="messageInput"
-            type="text"
-            placeholder="Type a message..."
-            disabled
-            autocomplete="off"
-          />
+          <input id="messageInput" type="text" placeholder="Type a message..." disabled autocomplete="off"/>
           <button id="sendBtn" class="send-btn">
             <i class="ri-send-plane-fill"></i>
           </button>
@@ -125,6 +152,15 @@
       </section>
 
     </main>
+
+    <aside id="userSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h3>Online Users</h3>
+        <button id="closeSidebar"><i class="ri-close-line"></i></button>
+      </div>
+      <div id="userList" class="user-list">
+        </div>
+    </aside>
 
   </div>
 
