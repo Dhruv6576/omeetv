@@ -51,6 +51,16 @@ io.on("connection", socket => {
     }
   });
 
+  socket.on("stop", () => {
+  if (socket.partner) {
+    socket.partner.emit("partner-left");
+    socket.partner.partner = null;
+  }
+  socket.partner = null;
+  removeFromQueue(socket);
+});
+
+
   socket.on("signal", data => {
     if (socket.partner) {
       socket.partner.emit("signal", data);

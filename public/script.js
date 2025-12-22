@@ -87,6 +87,21 @@ socket.on("partner-found", async ({ role, partnerName }) => {
   }
 });
 
+stopBtn.onclick = () => {
+  // Tell server we are stopping
+  socket.emit("stop");
+
+  // Clean WebRTC + UI
+  fullCleanup();
+
+  // Reset UI state
+  status.textContent = "Click Start";
+  startBtn.disabled = false;
+  nextBtn.disabled = true;
+  stopBtn.disabled = true;
+};
+
+
 // ===== SIGNAL =====
 socket.on("signal", async data => {
   if (!peer) createPeer();
@@ -139,5 +154,32 @@ function cleanup() {
 // ===== DISCONNECT =====
 socket.on("partner-left", () => {
   status.textContent = "Stranger disconnected";
-  cleanup();
+  fullCleanup();
+  startBtn.disabled = false;
+  nextBtn.disabled = true;
+  stopBtn.disabled = true;
 });
+
+
+
+function fullCleanup() {
+  // Close peer connection
+  if (peer) {
+    peer.close();
+    peer = null;
+  }
+
+  // Stop remote video
+  remoteVideo.srcObject = null;
+
+  // Stop local media
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null;
+  }
+
+  // Clear chat
+  messages.innerHTML = "";
+  messageInput.value = "";
+  messageInput.disabled = true;
+}
