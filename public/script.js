@@ -1,5 +1,6 @@
 const socket = io();
 
+// ===== ELEMENTS =====
 const nameBox = document.getElementById("nameBox");
 const joinBtn = document.getElementById("joinBtn");
 const nameInput = document.getElementById("nameInput");
@@ -17,11 +18,15 @@ const remoteVideo = document.getElementById("remoteVideo");
 const messages = document.getElementById("messages");
 const messageInput = document.getElementById("messageInput");
 
-let localStream;
-let peer;
-let myName;
-let myRole; // caller or callee
+const onlineCount = document.getElementById("onlineCount"); // NEW
 
+// ===== STATE =====
+let localStream = null;
+let peer = null;
+let myRole = null;
+let myName = null;
+
+// ===== ICE =====
 const ice = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
 };
@@ -29,6 +34,7 @@ const ice = {
 // ===== JOIN =====
 joinBtn.onclick = () => {
   if (!nameInput.value.trim()) return;
+
   myName = nameInput.value.trim();
   socket.emit("join", myName);
 
@@ -38,26 +44,30 @@ joinBtn.onclick = () => {
 
 // ===== START =====
 startBtn.onclick = async () => {
-  status.textContent = "Looking for someone...";
   startBtn.disabled = true;
   nextBtn.disabled = false;
   stopBtn.disabled = false;
+  status.textContent = "Looking for someone...";
 
-  localStream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  });
-  localVideo.srcObject = localStream;
+  if (!localStream) {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+    localVideo.srcObject = localStream;
+  }
 
   socket.emit("find-partner");
 };
 
-// ===== PEER =====
+// ===== CREATE PEER =====
 function createPeer() {
+  if (peer) return;
+
   peer = new RTCPeerConnection(ice);
 
-  localStream.getTracks().forEach(t =>
-    peer.addTrack(t, localStream)
+  localStream.getTracks().forEach(track =>
+    peer.addTrack(track, localStream)
   );
 
   peer.ontrack = e => {
@@ -71,40 +81,25 @@ function createPeer() {
   };
 }
 
-// ===== MATCHED =====
-socket.on("partner-found", async ({ role, partnerName }) => {
+// ===== MATCH FOUND =====
+socket.on("partner-found", ({ role, partnerName }) => {
   myRole = role;
   status.textContent = `Connected with ${partnerName}`;
   messageInput.disabled = false;
 
   createPeer();
 
-  // ONLY CALLER CREATES OFFER
   if (myRole === "caller") {
-    const offer = await peer.createOffer();
-    await peer.setLocalDescription(offer);
-    socket.emit("signal", { offer });
+    peer.createOffer().then(offer => {
+      peer.setLocalDescription(offer);
+      socket.emit("signal", { offer });
+    });
   }
 });
 
-stopBtn.onclick = () => {
-  // Tell server we are stopping
-  socket.emit("stop");
-
-  // Clean WebRTC + UI
-  fullCleanup();
-
-  // Reset UI state
-  status.textContent = "Click Start";
-  startBtn.disabled = false;
-  nextBtn.disabled = true;
-  stopBtn.disabled = true;
-};
-
-
 // ===== SIGNAL =====
 socket.on("signal", async data => {
-  if (!peer) createPeer();
+  createPeer();
 
   if (data.offer) {
     await peer.setRemoteDescription(data.offer);
@@ -137,49 +132,52 @@ socket.on("chat-message", data => {
 
 // ===== NEXT =====
 nextBtn.onclick = () => {
-  cleanup();
   socket.emit("next");
-  socket.emit("find-partner");
+  resetCall();
   status.textContent = "Looking for someone...";
+  socket.emit("find-partner");
 };
 
-// ===== CLEANUP =====
-function cleanup() {
-  if (peer) peer.close();
-  peer = null;
-  remoteVideo.srcObject = null;
-  messages.innerHTML = "";
-}
+// ===== STOP =====
+stopBtn.onclick = () => {
+  socket.emit("stop");
+  fullReset();
+};
 
-// ===== DISCONNECT =====
+// ===== PARTNER LEFT =====
 socket.on("partner-left", () => {
   status.textContent = "Stranger disconnected";
-  fullCleanup();
-  startBtn.disabled = false;
-  nextBtn.disabled = true;
-  stopBtn.disabled = true;
+  resetCall();
 });
 
+// ===== ONLINE COUNT =====
+socket.on("online-count", count => {
+  onlineCount.textContent = `Online: ${count}`;
+});
 
-
-function fullCleanup() {
-  // Close peer connection
+// ===== HELPERS =====
+function resetCall() {
   if (peer) {
     peer.close();
     peer = null;
   }
-
-  // Stop remote video
   remoteVideo.srcObject = null;
+  messages.innerHTML = "";
+  messageInput.disabled = true;
+}
 
-  // Stop local media
+function fullReset() {
+  resetCall();
+
   if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
+    localStream.getTracks().forEach(t => t.stop());
     localStream = null;
   }
 
-  // Clear chat
-  messages.innerHTML = "";
-  messageInput.value = "";
-  messageInput.disabled = true;
+  localVideo.srcObject = null;
+  status.textContent = "Click Start";
+
+  startBtn.disabled = false;
+  nextBtn.disabled = true;
+  stopBtn.disabled = true;
 }
