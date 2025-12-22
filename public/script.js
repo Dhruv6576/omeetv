@@ -17,6 +17,10 @@ const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const waitMsg = document.getElementById("waitMsg"); 
 
+// NEW: Elements for changing Names
+const localNameLabel = document.getElementById("localName");
+const remoteNameLabel = document.getElementById("remoteName");
+
 const messages = document.getElementById("messages");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn"); 
@@ -40,6 +44,9 @@ joinBtn.onclick = () => {
 
   myName = nameInput.value.trim();
   socket.emit("join", myName);
+
+  // UPDATE UI: Set your own name on the video label
+  localNameLabel.textContent = myName + " (You)";
 
   nameBox.style.display = "none";
   app.style.display = "block";
@@ -103,6 +110,10 @@ remoteVideo.onpause = () => {
 socket.on("partner-found", ({ role, partnerName }) => {
   myRole = role;
   status.textContent = `Talking to: ${partnerName}`;
+  
+  // UPDATE UI: Set Stranger's name on the video label
+  remoteNameLabel.textContent = partnerName;
+  
   statusDot.className = "dot active"; 
   messageInput.disabled = false;
   messageInput.focus();
@@ -168,7 +179,7 @@ messageInput.onkeydown = e => {
 sendBtn.onclick = sendMessage; 
 
 socket.on("chat-message", data => {
-  // Stranger's message (Left side)
+  // Stranger's message (Left side) - Uses the name sent from server
   appendMessage(`<div class="msg-box stranger-msg"><b>${data.from}:</b> ${data.text}</div>`);
 });
 
@@ -208,6 +219,9 @@ function resetCall() {
   remoteVideo.srcObject = null;
   waitMsg.style.display = "flex"; 
   
+  // RESET UI: Change name back to "Stranger"
+  remoteNameLabel.textContent = "Stranger";
+
   // Clear chat but keep scrolling active
   messages.innerHTML = `<div class="system-msg">Chat cleared. Searching...</div>`;
   messageInput.disabled = true;

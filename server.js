@@ -53,7 +53,7 @@ io.on("connection", socket => {
       socket.partner = partner;
       partner.partner = socket;
 
-      // Decide roles to avoid WebRTC glare
+      // Notify BOTH users with the OTHER person's name
       socket.emit("partner-found", {
         role: "caller",
         partnerName: partner.username || "Stranger"

@@ -17,12 +17,15 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
 
+/* MOBILE DEFAULT: Allow Scrolling */
 body {
   background: var(--bg-dark);
   color: var(--text);
-  height: 100dvh; /* Exact screen height */
   width: 100vw;
-  overflow: hidden; /* No scroll on body */
+  /* Allow scroll on mobile */
+  overflow-y: auto; 
+  height: auto; 
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -66,52 +69,57 @@ body {
 }
 
 /* =========================================
-   4. APP STRUCTURE (The Fix)
+   4. APP STRUCTURE
    ========================================= */
-#app { height: 100%; display: flex; flex-direction: column; }
+#app { 
+  display: flex; 
+  flex-direction: column; 
+  width: 100%;
+}
 
-/* HEADER - Fixed Height */
+/* HEADER */
 .app-header {
-  height: 60px; flex-shrink: 0; /* Never shrink */
+  height: 60px; flex-shrink: 0; 
   display: flex; justify-content: space-between; align-items: center;
   padding: 0 20px; background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
 }
 .logo { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
-.status-pill { display: none; } /* Mobile hidden */
+.status-pill { display: none; }
 .online-badge { color: var(--accent); font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
 
-/* MAIN LAYOUT - Fills remaining space */
+/* MAIN LAYOUT - Mobile Stacked */
 .main-layout {
-  flex: 1; /* Takes all space below header */
   display: flex; 
-  flex-direction: column; /* Mobile Default: Stack vertically */
-  overflow: hidden; /* Prevents double scrolling */
-  padding: 10px; gap: 10px;
+  flex-direction: column; 
+  padding: 10px; gap: 20px;
 }
 
 /* =========================================
-   5. VIDEO SECTION
+   5. VIDEO SECTION (SCREEN 1)
    ========================================= */
 .video-container {
   display: flex; flex-direction: column; gap: 10px;
-  /* MOBILE FIX: Don't let videos get too huge. Max 45% of screen height */
-  flex: 0 0 auto; 
-  max-height: 50%;
+  /* MOBILE KEY FIX:
+     100dvh (Screen height) - 80px (Header + padding)
+     This forces Video + Buttons to take exactly one screen.
+  */
+  height: calc(100dvh - 80px); 
+  flex-shrink: 0;
 }
 
 .video-grid {
   display: flex; gap: 10px;
-  height: 100%; /* Fill container */
+  flex-direction: column; /* Stacked Vertically */
+  flex: 1; /* Fill available height */
+  min-height: 0;
 }
 
-/* Mobile: Side-by-side or Stacked? Let's do Side-by-Side for compactness on small screens */
-.video-grid { flex-direction: row; } 
-
 .video-wrapper {
-  flex: 1; /* Equal width */
+  flex: 1; /* Equal height */
+  width: 100%; /* Full Width */
   background: #000; border-radius: var(--radius);
   position: relative; overflow: hidden; border: 1px solid var(--border);
-  aspect-ratio: 3/4; /* Portrait ratio for mobile phones looks better */
 }
 
 video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
@@ -120,6 +128,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
   position: absolute; top: 8px; left: 8px;
   background: rgba(0,0,0,0.6); padding: 4px 10px;
   border-radius: 6px; font-size: 0.7rem; z-index: 10;
+  max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* WAITING SPINNER */
@@ -135,14 +144,20 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* CONTROLS */
+/* CONTROLS BAR */
 .controls-bar {
   display: flex; gap: 10px;
+  height: 50px; 
+  flex-shrink: 0;
 }
+
 .btn {
-  flex: 1; padding: 12px; border: none; border-radius: 12px;
+  flex: 1; padding: 0;
+  height: 100%; 
+  border: none; border-radius: 12px;
   color: white; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 .start { background: var(--green); }
 .next { background: var(--accent); color: #0f172a; }
@@ -150,36 +165,61 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .btn:disabled { opacity: 0.5; filter: grayscale(1); }
 
 /* =========================================
-   6. CHAT SECTION (The Magic Fix)
+   6. CHAT SECTION (SCREEN 2 - SCROLL DOWN)
    ========================================= */
 .chat-container {
-  flex: 1; /* Takes ALL remaining height */
+  /* Give it a specific height on mobile so it looks like a section */
+  height: 85vh; 
   background: var(--glass); border: 1px solid var(--border);
   border-radius: var(--radius);
   display: flex; flex-direction: column;
-  min-height: 0; /* CRITICAL: Allows flex child to scroll */
+  overflow: hidden; 
+  flex-shrink: 0;
 }
 
 .chat-header {
   padding: 10px 15px; border-bottom: 1px solid var(--border);
   background: rgba(0,0,0,0.2); font-size: 0.9rem; display: flex; justify-content: space-between;
+  flex-shrink: 0; 
 }
 
 .messages-list {
-  flex: 1; /* Fill space between header and input */
-  overflow-y: auto; /* Scroll ONLY here */
+  flex: 1; 
+  overflow-y: auto; 
   padding: 15px; display: flex; flex-direction: column; gap: 10px;
+  min-height: 0; 
+  scroll-behavior: smooth;
 }
 
 /* Bubbles */
-.msg-box { padding: 8px 12px; border-radius: 10px; max-width: 85%; font-size: 0.9rem; word-break: break-word; }
-.my-msg { align-self: flex-end; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); }
-.stranger-msg { align-self: flex-start; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); }
+.msg-box { 
+  padding: 10px 14px; 
+  border-radius: 10px; 
+  max-width: 85%; 
+  font-size: 0.9rem; 
+  word-break: break-word; 
+  line-height: 1.4;
+}
+
+.my-msg { 
+  align-self: flex-end; 
+  background: rgba(99, 102, 241, 0.2); 
+  border: 1px solid rgba(99, 102, 241, 0.4); 
+}
+
+.stranger-msg { 
+  align-self: flex-start; 
+  background: rgba(255, 255, 255, 0.15); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
+  color: #fff; 
+}
+
 .system-msg { text-align: center; font-size: 0.8rem; color: var(--muted); opacity: 0.8; margin: 10px 0; }
 
 .chat-input-wrapper {
   padding: 10px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border);
   display: flex; gap: 10px; align-items: center;
+  flex-shrink: 0; 
 }
 .chat-input-wrapper input {
   flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px;
@@ -187,37 +227,53 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .send-btn { background: none; border: none; color: var(--accent); font-size: 1.4rem; cursor: pointer; padding: 0 5px; }
 
 /* =========================================
-   7. DESKTOP / TABLET OVERRIDES
+   7. DESKTOP / WINDOW OVERRIDES (PROTECTED)
    ========================================= */
 @media (min-width: 768px) {
   
-  /* Layout goes Horizontal */
-  .main-layout { flex-direction: row; }
-
-  /* Video Section takes more width */
-  .video-container { 
-    flex: 2; /* 2/3 width */
-    max-height: none; /* Remove mobile height limit */
-    height: 100%; /* Fill height */
+  /* Desktop: No Scroll on Body, everything fits in one screen */
+  body {
+    height: 100dvh;
+    overflow: hidden;
   }
 
-  .video-grid { 
-    flex-direction: row; /* Videos side by side */
-    flex: 1; /* Fill vertical space */
+  #app { height: 100%; }
+
+  .main-layout { 
+    flex-direction: row; 
+    height: calc(100% - 60px); /* Fit exactly under header */
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .video-container { 
+    flex: 2; 
+    height: 100%; 
     min-height: 0;
+  }
+
+  /* Side-by-Side 50/50 */
+  .video-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
+    height: 100%;
+    width: 100%;
+    flex: 1;
   }
   
   .video-wrapper { 
     height: 100%; 
-    aspect-ratio: auto; /* Let flex handle width */
+    width: 100%;
+    aspect-ratio: auto; 
   }
 
   .chat-container {
-    flex: 1; /* 1/3 width */
+    flex: 1; 
     height: 100%;
+    margin-top: 0;
   }
 
-  /* Show Status Pill on Desktop */
   .status-pill { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
   .dot { width: 8px; height: 8px; background: var(--muted); border-radius: 50%; }
   .dot.active { background: var(--green); box-shadow: 0 0 10px var(--green); }
