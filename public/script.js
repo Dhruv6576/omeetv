@@ -11,15 +11,15 @@ const startBtn = document.getElementById("startBtn");
 const nextBtn = document.getElementById("nextBtn");
 const stopBtn = document.getElementById("stopBtn");
 const status = document.getElementById("status");
-const statusDot = document.getElementById("statusDot"); // New Dot element
+const statusDot = document.getElementById("statusDot"); 
 
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
-const waitMsg = document.getElementById("waitMsg"); // New Wait Message
+const waitMsg = document.getElementById("waitMsg"); 
 
 const messages = document.getElementById("messages");
 const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn"); // New Send Button
+const sendBtn = document.getElementById("sendBtn"); 
 
 const onlineCount = document.getElementById("onlineCount");
 
@@ -29,7 +29,7 @@ let peer = null;
 let myRole = null;
 let myName = null;
 
-// ===== ICE =====
+// ===== ICE SERVERS =====
 const ice = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
 };
@@ -51,7 +51,7 @@ startBtn.onclick = async () => {
   nextBtn.disabled = false;
   stopBtn.disabled = false;
   status.textContent = "Looking for someone...";
-  statusDot.className = "dot"; // Grey
+  statusDot.className = "dot"; 
 
   if (!localStream) {
     try {
@@ -69,7 +69,7 @@ startBtn.onclick = async () => {
   socket.emit("find-partner");
 };
 
-// ===== CREATE PEER =====
+// ===== CREATE PEER CONNECTION =====
 function createPeer() {
   if (peer) return;
 
@@ -81,7 +81,6 @@ function createPeer() {
 
   peer.ontrack = e => {
     remoteVideo.srcObject = e.streams[0];
-    // Video element will trigger 'play' event which hides waitMsg
   };
 
   peer.onicecandidate = e => {
@@ -92,12 +91,10 @@ function createPeer() {
 }
 
 // ===== VIDEO UI EVENTS =====
-// Hides "Waiting..." text when video actually starts playing
 remoteVideo.onplay = () => {
     waitMsg.style.display = "none";
 };
 
-// Shows "Waiting..." text when video stops/empties
 remoteVideo.onpause = () => {
     waitMsg.style.display = "flex";
 };
@@ -106,7 +103,7 @@ remoteVideo.onpause = () => {
 socket.on("partner-found", ({ role, partnerName }) => {
   myRole = role;
   status.textContent = `Talking to: ${partnerName}`;
-  statusDot.className = "dot active"; // Green
+  statusDot.className = "dot active"; 
   messageInput.disabled = false;
   messageInput.focus();
 
@@ -120,9 +117,9 @@ socket.on("partner-found", ({ role, partnerName }) => {
   }
 });
 
-// ===== SIGNAL =====
+// ===== SIGNALING =====
 socket.on("signal", async data => {
-  createPeer(); // Ensure peer exists
+  createPeer(); 
 
   if (data.offer) {
     await peer.setRemoteDescription(data.offer);
@@ -140,14 +137,27 @@ socket.on("signal", async data => {
   }
 });
 
-// ===== CHAT =====
+// ===== CHAT FUNCTIONS =====
+
+// Helper to scroll to bottom smoothly
+const scrollToBottom = () => {
+    messages.scrollTop = messages.scrollHeight;
+};
+
+// Helper to append message safely
+const appendMessage = (html) => {
+    messages.insertAdjacentHTML('beforeend', html);
+    scrollToBottom();
+};
+
 const sendMessage = () => {
-    if (messageInput.value.trim()) {
-        const msg = messageInput.value.trim();
-        messages.innerHTML += `<div style="text-align: right; color: #a855f7;"><b>You:</b> ${msg}</div>`;
-        socket.emit("chat-message", msg);
+    const text = messageInput.value.trim();
+    if (text) {
+        // User's own message (Right side)
+        appendMessage(`<div class="msg-box my-msg"><b>You:</b> ${text}</div>`);
+        
+        socket.emit("chat-message", text);
         messageInput.value = "";
-        messages.scrollTop = messages.scrollHeight; // Auto scroll
     }
 };
 
@@ -155,11 +165,11 @@ messageInput.onkeydown = e => {
   if (e.key === "Enter") sendMessage();
 };
 
-sendBtn.onclick = sendMessage; // Click listener for button
+sendBtn.onclick = sendMessage; 
 
 socket.on("chat-message", data => {
-  messages.innerHTML += `<div><b>${data.from}:</b> ${data.text}</div>`;
-  messages.scrollTop = messages.scrollHeight; // Auto scroll
+  // Stranger's message (Left side)
+  appendMessage(`<div class="msg-box stranger-msg"><b>${data.from}:</b> ${data.text}</div>`);
 });
 
 // ===== NEXT =====
@@ -196,10 +206,10 @@ function resetCall() {
     peer = null;
   }
   remoteVideo.srcObject = null;
-  // This explicitly shows the waiting text
   waitMsg.style.display = "flex"; 
   
-  messages.innerHTML = `<div class="system-msg">Chat cleared. Searching for new partner...</div>`;
+  // Clear chat but keep scrolling active
+  messages.innerHTML = `<div class="system-msg">Chat cleared. Searching...</div>`;
   messageInput.disabled = true;
 }
 
