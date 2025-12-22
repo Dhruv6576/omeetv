@@ -3,7 +3,7 @@
    ========================================= */
 :root {
   --bg-color: #0f172a;
-  --glass-bg: rgba(30, 41, 59, 0.85);
+  --glass-bg: rgba(30, 41, 59, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   --accent-color: #38bdf8;
@@ -27,16 +27,15 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-main);
-  /* 100dvh handles mobile browser address bars better */
-  height: 100dvh; 
-  overflow: hidden; /* Prevent body scroll */
+  height: 100dvh; /* Dynamic height for mobile browsers */
+  overflow: hidden; 
   position: relative;
   display: flex;
   flex-direction: column;
 }
 
 /* =========================================
-   2. BACKGROUND
+   2. ANIMATIONS & BACKGROUND
    ========================================= */
 .blob {
   position: absolute;
@@ -62,16 +61,16 @@ body {
 }
 
 /* =========================================
-   3. JOIN SCREEN (OVERLAY)
+   3. JOIN SCREEN
    ========================================= */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.98); /* Higher opacity to hide app behind */
+  background: rgba(15, 23, 42, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* Always on top */
+  z-index: 9999;
   padding: 20px;
 }
 
@@ -97,7 +96,7 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   color: white;
-  font-size: 16px; 
+  font-size: 16px; /* Prevents zoom on iOS */
   outline: none;
 }
 
@@ -117,7 +116,7 @@ body {
 }
 
 /* =========================================
-   4. APP HEADER (Fixed Top)
+   4. APP HEADER
    ========================================= */
 .app-header {
   height: 60px;
@@ -125,15 +124,17 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 15px;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.8);
   border-bottom: 1px solid var(--glass-border);
-  flex-shrink: 0; /* NEVER shrink the header */
-  z-index: 50; /* Ensure it stays above video content */
+  flex-shrink: 0;
 }
 
 .logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
-.status-pill { display: none; }
+.status-pill { 
+  display: none; /* Hidden on mobile */
+}
+
 @media (min-width: 600px) {
   .status-pill {
     display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
@@ -147,32 +148,28 @@ body {
 .online-badge { display: flex; align-items: center; gap: 5px; color: var(--accent-color); font-size: 0.9rem; }
 
 /* =========================================
-   5. MAIN LAYOUT GRID
+   5. MAIN LAYOUT
    ========================================= */
 .main-grid {
-  flex: 1; /* Takes all remaining height below header */
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 10px;
-  overflow: hidden; /* Prevents double scrollbars */
-  position: relative;
+  overflow: hidden;
 }
 
-/* =========================================
-   6. VIDEO SECTION
-   ========================================= */
+/* Video Area */
 .video-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  /* On mobile, we limit video height so header/chat aren't pushed out */
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .video-grid {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column; /* Stack vertically on mobile */
   gap: 10px;
 }
 
@@ -182,11 +179,10 @@ body {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--glass-border);
+  aspect-ratio: 4/3; 
   width: 100%;
-  
-  /* MOBILE FIX: Use rigid max-heights so 2 videos don't exceed screen */
-  height: 25vh; 
-  max-height: 250px; 
+  /* Max height on mobile to leave room for chat */
+  max-height: 25vh; 
 }
 
 video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
@@ -197,6 +193,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
   border-radius: 6px; font-size: 0.75rem; z-index: 10;
 }
 
+/* Waiting Overlay */
 .waiting-placeholder {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -214,7 +211,6 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
   background: var(--glass-bg);
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
-  flex-shrink: 0; /* Ensure buttons never shrink */
 }
 
 .ctrl-btn {
@@ -232,98 +228,155 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .stop { background: var(--danger); }
 .ctrl-btn:disabled { opacity: 0.5; filter: grayscale(1); }
 
+/* Chat Area */
+.chat-section {
+  flex: 1;
+  display: flex; flex-direction: column;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 10px 15px; font-size: 0.9rem;
+  background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border);
+  display: flex; justify-content: space-between;
+}
+
+.messages-area {
+  flex: 1; overflow-y: auto; padding: 10px;
+  display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;
+}
+
+.messages-area div { word-break: break-word; }
+
+.chat-input-area {
+  padding: 10px; background: rgba(0,0,0,0.3);
+  display: flex; gap: 10px; align-items: center;
+}
+
+.chat-input-area input {
+  flex: 1; background: transparent; border: none;
+  color: white; font-size: 16px; outline: none;
+}
+
+.send-icon {
+  background: none; border: none; color: var(--accent-color);
+  font-size: 1.5rem; cursor: pointer;
+}
+
 /* =========================================
-   7. CHAT SECTION (Correct Scroll Fix)
+   6. DESKTOP RESPONSIVE
+   ========================================= */
+@media (min-width: 900px) {
+  .main-grid { flex-direction: row; }
+  .video-section { flex: 2; height: 100%; }
+  .video-grid { flex-direction: row; flex: 1; }
+  .video-card { max-height: none; aspect-ratio: auto; }
+  .controls-bar { display: flex; justify-content: center; }
+  .ctrl-btn { flex-direction: row; padding: 12px 24px; width: auto; }
+  .chat-section { flex: 1; }
+}
+
+
+/* ... [Previous CSS stays the same] ... */
+
+/* =========================================
+   8. CHAT SECTION (Fixed Scrolling)
    ========================================= */
 .chat-section {
-  flex: 1; /* Fills remaining space */
+  flex: 1; /* Takes up remaining height */
   display: flex;
   flex-direction: column;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  
-  /* CRITICAL: Force height calculation for scrolling */
-  height: 100%; 
-  min-height: 0; 
+  min-height: 0; /* Crucial for nested flex scrolling */
+  position: relative;
 }
 
 .chat-header {
-  padding: 10px 15px; font-size: 0.9rem;
-  background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border);
-  flex-shrink: 0;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Header never shrinks */
 }
 
 .messages-area {
-  flex-grow: 1; 
-  overflow-y: auto; /* Scrollbar appears here */
-  height: 0; /* Flexbox trick to force scroll constraint */
+  flex-grow: 1; /* Fills available space */
+  overflow-y: auto; /* Enables scrolling */
   padding: 10px;
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
 }
 
-.messages-area::-webkit-scrollbar { width: 6px; }
+/* Scrollbar Styling */
+.messages-area::-webkit-scrollbar { width: 5px; }
 .messages-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
 /* Message Bubbles */
-.msg-box { padding: 8px 12px; border-radius: 8px; max-width: 85%; word-wrap: break-word; }
-.my-msg { align-self: flex-end; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.3); color: white; }
-.stranger-msg { align-self: flex-start; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; }
-.system-msg { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin: 10px 0; }
+.msg-box {
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 85%;
+  word-wrap: break-word;
+}
 
+.my-msg {
+  align-self: flex-end; /* Push to right */
+  background: rgba(168, 85, 247, 0.2); /* Purple tint */
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: white;
+}
+
+.stranger-msg {
+  align-self: flex-start; /* Push to left */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.system-msg {
+  text-align: center; 
+  color: var(--text-muted); 
+  font-size: 0.8rem; 
+  font-style: italic;
+  margin: 10px 0;
+}
+
+/* Chat Input Bar */
 .chat-input-area {
-  padding: 10px; background: rgba(0,0,0,0.3);
-  display: flex; gap: 10px; align-items: center;
-  flex-shrink: 0; border-top: 1px solid var(--glass-border);
+  padding: 10px;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0; /* Input bar never shrinks */
+  border-top: 1px solid var(--glass-border);
 }
 
 .chat-input-area input {
-  flex: 1; background: transparent; border: none; color: white;
-  font-size: 16px; outline: none; padding: 5px;
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px; /* Prevents zoom */
+  outline: none;
+  padding: 5px;
 }
 
 .send-icon {
-  background: none; border: none; color: var(--accent-color);
-  font-size: 1.5rem; padding: 5px; cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  padding: 5px;
+  cursor: pointer;
 }
 
-/* =========================================
-   8. DESKTOP / WINDOWS FIX
-   ========================================= */
-@media (min-width: 900px) {
-  .main-grid { flex-direction: row; }
-  
-  .video-section { 
-    flex: 2; 
-    height: 100%; /* Fill parent height */
-    overflow: hidden; /* Contain videos */
-  }
-
-  .video-grid { 
-    flex-direction: row; 
-    flex: 1; /* Grow to fill space above buttons */
-    /* CRITICAL WINDOWS FIX: min-height: 0 prevents overflow */
-    min-height: 0; 
-  }
-
-  .video-card { 
-    /* Remove mobile height limits */
-    height: 100%; 
-    max-height: none; 
-    width: 50%; /* Side by side */
-  }
-
-  .controls-bar { 
-    display: flex; justify-content: center; 
-    padding: 15px; /* More padding on desktop */
-  }
-  
-  .ctrl-btn { 
-    flex-direction: row; padding: 12px 24px; width: auto; 
-  }
-
-  .chat-section { flex: 1; }
-}
+/* ... [Rest of CSS stays the same] ... */
