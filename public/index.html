@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Omegle Clone</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Talk to strangers!</h1>
+  <p id="status">Click Start</p>
+</header>
+
+<main>
+  <div class="videos">
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+  </div>
+
+  <div class="chat">
+    <div id="messages"></div>
+    <input id="messageInput" placeholder="Type message..." disabled>
+  </div>
+</main>
+
+<footer>
+  <button id="startBtn">Start</button>
+  <button id="nextBtn" disabled>Next</button>
+  <button id="stopBtn" disabled>Stop</button>
+</footer>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

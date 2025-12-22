@@ -1,0 +1,19 @@
+{
+  "name": "random-video-chat",
+  "version": "1.0.0",
+  "description": "Omegle-like random video chat website using Node.js, Socket.IO and WebRTC",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Dhruv",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
