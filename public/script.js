@@ -50,6 +50,9 @@ joinBtn.onclick = () => {
 
   nameBox.style.display = "none";
   app.style.display = "block";
+  
+  // FIX: Force scroll to top (Video Section) on mobile
+  window.scrollTo(0, 0);
 };
 
 // ===== START =====
@@ -116,7 +119,9 @@ socket.on("partner-found", ({ role, partnerName }) => {
   
   statusDot.className = "dot active"; 
   messageInput.disabled = false;
-  messageInput.focus();
+  
+  // FIX: REMOVED messageInput.focus() to prevent mobile keyboard
+  // messageInput.focus(); <--- DELETED THIS
 
   createPeer();
 

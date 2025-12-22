@@ -17,12 +17,13 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-/* MOBILE DEFAULT: Allow Scrolling */
+/* MOBILE DEFAULT: Allow Vertical Scrolling, Block Horizontal Shaking */
 body {
   background: var(--bg-dark);
   color: var(--text);
-  width: 100vw;
-  /* Allow scroll on mobile */
+  width: 100%;       
+  max-width: 100%;   
+  overflow-x: hidden; 
   overflow-y: auto; 
   height: auto; 
   min-height: 100dvh;
@@ -45,11 +46,12 @@ body {
 .overlay {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.96);
   display: flex; align-items: center; justify-content: center; z-index: 1000;
+  padding: 20px;
 }
 .glass-card {
   background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border);
   backdrop-filter: blur(20px); padding: 2rem; border-radius: 24px;
-  width: 90%; max-width: 380px; text-align: center;
+  width: 100%; max-width: 380px; text-align: center;
 }
 .icon-header i { font-size: 3.5rem; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .join-card h2 { margin: 10px 0; font-size: 1.8rem; }
@@ -68,6 +70,29 @@ body {
   display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
 }
 
+/* NEW: Privacy Note Styling */
+.privacy-note {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.privacy-note i {
+  font-size: 1.2rem;
+  color: var(--green);
+}
+.privacy-note p {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
+}
+
 /* =========================================
    4. APP STRUCTURE
    ========================================= */
@@ -75,6 +100,7 @@ body {
   display: flex; 
   flex-direction: column; 
   width: 100%;
+  max-width: 100vw; 
 }
 
 /* HEADER */
@@ -83,6 +109,7 @@ body {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0 20px; background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border);
   position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+  width: 100%;
 }
 .logo { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
 .status-pill { display: none; }
@@ -93,6 +120,7 @@ body {
   display: flex; 
   flex-direction: column; 
   padding: 10px; gap: 20px;
+  width: 100%;
 }
 
 /* =========================================
@@ -100,24 +128,22 @@ body {
    ========================================= */
 .video-container {
   display: flex; flex-direction: column; gap: 10px;
-  /* MOBILE KEY FIX:
-     100dvh (Screen height) - 80px (Header + padding)
-     This forces Video + Buttons to take exactly one screen.
-  */
   height: calc(100dvh - 80px); 
   flex-shrink: 0;
+  width: 100%;
 }
 
 .video-grid {
   display: flex; gap: 10px;
-  flex-direction: column; /* Stacked Vertically */
-  flex: 1; /* Fill available height */
+  flex-direction: column; 
+  flex: 1; 
   min-height: 0;
+  width: 100%;
 }
 
 .video-wrapper {
-  flex: 1; /* Equal height */
-  width: 100%; /* Full Width */
+  flex: 1; 
+  width: 100%; 
   background: #000; border-radius: var(--radius);
   position: relative; overflow: hidden; border: 1px solid var(--border);
 }
@@ -149,6 +175,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
   display: flex; gap: 10px;
   height: 50px; 
   flex-shrink: 0;
+  width: 100%;
 }
 
 .btn {
@@ -168,13 +195,13 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
    6. CHAT SECTION (SCREEN 2 - SCROLL DOWN)
    ========================================= */
 .chat-container {
-  /* Give it a specific height on mobile so it looks like a section */
   height: 85vh; 
   background: var(--glass); border: 1px solid var(--border);
   border-radius: var(--radius);
   display: flex; flex-direction: column;
   overflow: hidden; 
   flex-shrink: 0;
+  width: 100%;
 }
 
 .chat-header {
@@ -231,17 +258,16 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
    ========================================= */
 @media (min-width: 768px) {
   
-  /* Desktop: No Scroll on Body, everything fits in one screen */
   body {
     height: 100dvh;
-    overflow: hidden;
+    overflow: hidden; 
   }
 
   #app { height: 100%; }
 
   .main-layout { 
     flex-direction: row; 
-    height: calc(100% - 60px); /* Fit exactly under header */
+    height: calc(100% - 60px); 
     padding: 10px;
     gap: 10px;
   }
