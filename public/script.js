@@ -44,16 +44,38 @@ let outgoingRequestTargetId = null;
 
 const ice = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-// ===== HELPER: GET MEDIA =====
+
+// ===== HELPER: SOUND EFFECTS =====
+function playSound(id) {
+  const audio = document.getElementById(id);
+  if (audio) {
+    audio.currentTime = 0; // Reset to start if already playing
+    audio.play().catch(err => console.log("Audio blocked:", err));
+  }
+}
+
+// ===== HELPER: GET MEDIA (With Auto-Adaptive HD) =====
 async function getMedia() {
   if (localStream) return localStream;
   try {
+    // We ask for 720p "Ideal". The browser will autosize down if network is bad.
     const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
+      video: {
+        width: { ideal: 1280 }, 
+        height: { ideal: 720 },
+        frameRate: { ideal: 30 } 
+      }, 
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true
+      }
     });
     localStream = stream;
     localVideo.srcObject = stream;
+    
+    // Start monitoring the quality once we have a stream
+    startQualityMonitor();
+    
     return stream;
   } catch (err) {
     console.error("Camera Error:", err);
@@ -364,6 +386,8 @@ function createPeer() {
 
 // ===== MATCH FOUND =====
 socket.on("partner-found", async ({ role, partnerName, isPartnerCreator }) => {
+  playSound("sfx-found");
+  
   myRole = role;
   
   // Update name and style
@@ -372,11 +396,14 @@ socket.on("partner-found", async ({ role, partnerName, isPartnerCreator }) => {
     remoteNameLabel.classList.add('is-creator');
     remoteVideoWrapper.classList.add('creator-border');
   } else {
-    remoteNameLabel.textContent = partnerName;
+    remoteNameLabel.textContent = partnerName; // <--- This was deleting the badge
     remoteNameLabel.classList.remove('is-creator');
     remoteVideoWrapper.classList.remove('creator-border');
   }
   
+  // FIX: Re-add the quality badge because the lines above wiped it out
+  startQualityMonitor(); 
+
   status.textContent = `Talking to: ${partnerName}`;
   statusDot.className = "dot active";
   messageInput.disabled = false;
@@ -437,6 +464,7 @@ messageInput.onkeydown = e => { if (e.key === "Enter") sendMessage(); };
 sendBtn.onclick = sendMessage;
 
 socket.on("chat-message", data => {
+  playSound("sfx-msg");
   appendMessage(`<div class="msg-box stranger-msg"><b>${data.from}:</b> ${data.text}</div>`);
 });
 
@@ -456,6 +484,7 @@ stopBtn.onclick = () => {
 };
 
 socket.on("partner-left", () => {
+  playSound("sfx-left");
   status.textContent = "Stranger disconnected. Searching...";
   resetCall();
   socket.emit("find-partner");
@@ -522,9 +551,11 @@ window.addEventListener('load', () => {
     lastTouchEnd = now;
   }, false);
   
-  // Prevent pull-to-refresh on mobile
+// Fix: Only prevent default if pinch-zooming (more than 1 finger)
   document.addEventListener('touchmove', (e) => {
-    if (e.scale !== 1) e.preventDefault();
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
   }, { passive: false });
 });
 
@@ -534,3 +565,78 @@ document.addEventListener('visibilitychange', () => {
     document.title = "Omegle X";
   }
 });
+
+
+
+
+// ===== REAL-TIME VIDEO QUALITY MONITOR (IN NAME LABEL) =====
+let qualityInterval = null;
+
+function startQualityMonitor() {
+  // Clear any running interval
+  if (qualityInterval) clearInterval(qualityInterval);
+
+  // Target the name label container
+  const nameLabel = document.getElementById("remoteName");
+
+  // Create the quality tag inside the name label if it doesn't exist
+  let qTag = document.getElementById("qualityTag");
+  if (!qTag && nameLabel) {
+    qTag = document.createElement("span");
+    qTag.id = "qualityTag";
+    
+    // Style it as a small pill badge
+    Object.assign(qTag.style, {
+      fontSize: "0.65rem",
+      padding: "2px 6px",
+      borderRadius: "4px",
+      fontWeight: "700",
+      color: "white",
+      textTransform: "uppercase",
+      letterSpacing: "0.5px",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.3)",
+      display: "none" // Hide initially until video flows
+    });
+    
+    nameLabel.appendChild(qTag);
+  }
+
+  // Update every 1 second
+  qualityInterval = setInterval(() => {
+    const video = document.getElementById("remoteVideo");
+    const tag = document.getElementById("qualityTag");
+    
+    if (video && video.srcObject && !video.paused && video.videoWidth > 0 && tag) {
+      const h = video.videoHeight;
+      
+      let text = "LOW";
+      let bg = "rgba(239, 68, 68, 0.8)"; // Red (Low)
+      
+      if (h >= 720) { 
+        text = "HD"; 
+        bg = "rgba(34, 197, 94, 0.8)"; // Green (HD)
+      } else if (h >= 480) { 
+        text = "SD"; 
+        bg = "rgba(234, 179, 8, 0.8)"; // Yellow (SD)
+      }
+      
+      tag.textContent = text;
+      tag.style.background = bg;
+      tag.style.display = "inline-flex"; // Show it
+    } else if (tag) {
+      tag.style.display = "none"; // Hide if video stops
+    }
+  }, 1000);
+}
+
+// Stop monitoring when call ends and remove the tag
+const originalResetCall = resetCall; 
+resetCall = function() {
+  if (qualityInterval) clearInterval(qualityInterval);
+  
+  // Hide the tag when call ends
+  const tag = document.getElementById("qualityTag");
+  if (tag) tag.style.display = "none";
+  
+  originalResetCall(); 
+};

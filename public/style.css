@@ -1557,3 +1557,33 @@ video {
     opacity: 0;
   }
 }
+
+
+/* FIX: Ensure Send button doesn't disappear on mobile */
+.chat-input-wrapper input {
+  min-width: 0;        /* Allows the text box to shrink if needed */
+}
+
+.send-btn {
+  flex-shrink: 0;      /* Forces the button to stay 50px wide */
+  margin-left: 8px;    /* Adds a small gap just in case */
+}
+
+/* Optional: Adjust padding for smaller screens to give more room */
+@media (max-width: 480px) {
+  .chat-input-wrapper {
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .chat-input-wrapper input {
+    padding: 12px 15px; /* Slightly smaller padding */
+    font-size: 14px;
+  }
+  
+  .send-btn {
+    width: 45px;       /* Slightly smaller button for mobile */
+    height: 45px;
+    padding: 0;
+  }
+}

@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Omegle X - Modern</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-  
+  <audio id="sfx-found" src="audio/ding.mp3" preload="auto"></audio>
+  <audio id="sfx-msg" src="audio/pop.mp3" preload="auto"></audio>
+  <audio id="sfx-left" src="audio/whoosh.mp3" preload="auto"></audio>
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <div class="blob blob-1"></div>
@@ -24,12 +29,12 @@
       </div>
       <h2>Omegle X</h2>
       <p>Chat with strangers globally.</p>
-      
+
       <div class="input-group">
         <i class="ri-user-smile-line"></i>
-        <input id="nameInput" type="text" placeholder="Enter nickname..." autocomplete="off"/>
+        <input id="nameInput" type="text" placeholder="Enter nickname..." autocomplete="off" />
       </div>
-      
+
       <button id="joinBtn" class="primary-btn">
         Start Chatting <i class="ri-arrow-right-line"></i>
       </button>
@@ -37,8 +42,8 @@
       <div class="privacy-note">
         <i class="ri-shield-check-line"></i>
         <p>
-          <strong>Privacy & Safety:</strong> This site is for entertainment only. 
-          Your video, audio, and chats are <u>never recorded or stored</u>. 
+          <strong>Privacy & Safety:</strong> This site is for entertainment only.
+          Your video, audio, and chats are <u>never recorded or stored</u>.
           Please allow camera/mic access to verify you are human.
         </p>
       </div>
@@ -54,7 +59,7 @@
       <p style="margin-bottom: 20px;">
         <strong id="requesterName" style="color: var(--accent);">User</strong> wants to connect with you.
       </p>
-      
+
       <div class="modal-actions">
         <button id="declineBtn" class="btn modal-btn decline">Decline</button>
         <button id="acceptBtn" class="btn modal-btn accept">Accept</button>
@@ -65,32 +70,32 @@
   <div id="outgoingModal" class="overlay" style="display: none;">
     <div class="glass-card">
       <div class="radar" style="margin: 0 auto;">
-         <i class="ri-broadcast-line radar-icon"></i>
+        <i class="ri-broadcast-line radar-icon"></i>
       </div>
-      
+
       <h3>Request Sent</h3>
       <p style="margin-bottom: 20px;">
         Waiting for <strong id="outgoingTargetName" style="color: var(--yellow);">User</strong> to accept...
       </p>
-      
+
       <div class="modal-actions">
-         <button id="cancelRequestBtn" class="btn modal-btn decline">Cancel</button>
+        <button id="cancelRequestBtn" class="btn modal-btn decline">Cancel</button>
       </div>
     </div>
   </div>
 
   <div id="app" style="display:none;">
-    
+
     <div id="scrollHint" class="scroll-hint">
-       <i class="ri-arrow-down-circle-line" style="font-size: 1.5rem; color: #fff;"></i>
-       <span>Scroll for Chat</span>
+      <i class="ri-arrow-down-circle-line" style="font-size: 1.5rem; color: #fff;"></i>
+      <span>Scroll for Chat</span>
     </div>
 
     <header class="app-header">
       <div class="logo">
         <i class="ri-global-line"></i> <span>Omegle X</span>
       </div>
-      
+
       <div class="status-pill">
         <span class="dot" id="statusDot"></span>
         <p id="status">Ready</p>
@@ -103,7 +108,7 @@
     </header>
 
     <main class="main-layout">
-      
+
       <section class="video-container">
         <div class="video-grid">
           <div class="video-wrapper">
@@ -113,14 +118,14 @@
 
           <div class="video-wrapper">
             <span id="remoteName" class="label">Stranger</span>
-            
+
             <div id="waitMsg" class="waiting-layer">
               <div class="radar">
                 <i class="ri-search-2-line radar-icon"></i>
               </div>
               <p>Searching...</p>
             </div>
-            
+
             <video id="remoteVideo" autoplay playsinline></video>
           </div>
         </div>
@@ -133,11 +138,11 @@
           <button id="findBtn" class="btn find" disabled>
             <i class="ri-search-eye-line"></i> <span>Find</span>
           </button>
-          
+
           <button id="nextBtn" class="btn next" disabled>
             <i class="ri-skip-forward-fill"></i> <span>Next</span>
           </button>
-          
+
           <button id="stopBtn" class="btn stop" disabled>
             <i class="ri-stop-fill"></i> <span>Stop</span>
           </button>
@@ -155,7 +160,7 @@
         </div>
 
         <div class="chat-input-wrapper">
-          <input id="messageInput" type="text" placeholder="Type a message..." disabled autocomplete="off"/>
+          <input id="messageInput" type="text" placeholder="Type a message..." disabled autocomplete="off" />
           <button id="sendBtn" class="send-btn">
             <i class="ri-send-plane-fill"></i>
           </button>
@@ -179,4 +184,5 @@
   <script src="script.js"></script>
 
 </body>
+
 </html>
