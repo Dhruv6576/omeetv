@@ -54,33 +54,43 @@ function playSound(id) {
   }
 }
 
-// ===== HELPER: GET MEDIA (With Auto-Adaptive HD) =====
+// ===== HELPER: GET MEDIA (FORCED FASTER HD) =====
 async function getMedia() {
   if (localStream) return localStream;
   try {
-    // We ask for 720p "Ideal". The browser will autosize down if network is bad.
     const stream = await navigator.mediaDevices.getUserMedia({ 
       video: {
-        width: { ideal: 1280 }, 
-        height: { ideal: 720 },
-        frameRate: { ideal: 30 } 
+        // "min" forces it to start at least 640x480 (skips the blurry start)
+        width: { min: 640, ideal: 1280 },
+        height: { min: 480, ideal: 720 },
+        frameRate: { ideal: 30 }
       }, 
       audio: {
         echoCancellation: true,
-        noiseSuppression: true
+        noiseSuppression: true,
+        autoGainControl: true
       }
     });
     localStream = stream;
     localVideo.srcObject = stream;
     
-    // Start monitoring the quality once we have a stream
+    // Start monitoring the quality
     startQualityMonitor();
     
     return stream;
   } catch (err) {
     console.error("Camera Error:", err);
-    showMobileNotification("Camera/Mic Required", "Please allow access to continue.", "ri-camera-off-fill", "var(--red)");
-    return null;
+    // Fallback: If the camera fails (some old phones can't do 640 min), try basic settings
+    try {
+       const simpleStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+       localStream = simpleStream;
+       localVideo.srcObject = simpleStream;
+       startQualityMonitor();
+       return simpleStream;
+    } catch (retryErr) {
+       showMobileNotification("Camera Error", "Could not start camera.", "ri-camera-off-fill", "var(--red)");
+       return null;
+    }
   }
 }
 
