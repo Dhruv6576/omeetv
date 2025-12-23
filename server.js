@@ -1,3 +1,4 @@
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -66,7 +67,7 @@ io.on("connection", socket => {
   socket.on("find-partner", () => {
     removeFromQueue(socket.id);
     users[socket.id].status = 'searching';
-    broadcastUserList();
+    broadcastUserList(); // ADDED: Update user list when searching
 
     const partner = waitingQueue.find(s => s.id !== socket.id);
 
@@ -115,24 +116,23 @@ io.on("connection", socket => {
     }
   });
 
-  // NEW: Send 'isPartnerCreator' flag here
   function connectUsers(userA, userB) {
     userA.partner = userB;
     userB.partner = userA;
     users[userA.id].status = 'connected';
     users[userB.id].status = 'connected';
-    broadcastUserList();
+    broadcastUserList(); // ADDED: Update user list when connected
 
     userA.emit("partner-found", { 
       role: "caller", 
       partnerName: users[userB.id].name,
-      isPartnerCreator: users[userB.id].isCreator // Send creator status
+      isPartnerCreator: users[userB.id].isCreator
     });
     
     userB.emit("partner-found", { 
       role: "callee", 
       partnerName: users[userA.id].name,
-      isPartnerCreator: users[userA.id].isCreator // Send creator status
+      isPartnerCreator: users[userA.id].isCreator
     });
   }
 
@@ -154,10 +154,16 @@ io.on("connection", socket => {
       const partner = socket.partner;
       partner.emit("partner-left");
       partner.partner = null;
-      if(users[partner.id]) users[partner.id].status = 'searching';
+      if(users[partner.id]) {
+        users[partner.id].status = 'searching';
+        broadcastUserList(); // ADDED: Update user list when disconnected
+      }
     }
     socket.partner = null;
-    if(users[socket.id]) users[socket.id].status = 'searching';
+    if(users[socket.id]) {
+      users[socket.id].status = 'searching';
+      broadcastUserList(); // ADDED: Update user list when disconnected
+    }
     removeFromQueue(socket.id);
     broadcastUserList();
   };
