@@ -64,18 +64,27 @@
 
   <div id="outgoingModal" class="overlay" style="display: none;">
     <div class="glass-card">
-      <div class="loader" style="margin: 0 auto 20px auto; width: 50px; height: 50px;"></div>
+      <div class="radar" style="margin: 0 auto;">
+         <i class="ri-broadcast-line radar-icon"></i>
+      </div>
       
       <h3>Request Sent</h3>
       <p style="margin-bottom: 20px;">
         Waiting for <strong id="outgoingTargetName" style="color: var(--yellow);">User</strong> to accept...
       </p>
       
-      <button id="cancelRequestBtn" class="btn modal-btn decline" style="width: 100%;">Cancel</button>
+      <div class="modal-actions">
+         <button id="cancelRequestBtn" class="btn modal-btn decline">Cancel</button>
+      </div>
     </div>
   </div>
 
   <div id="app" style="display:none;">
+    
+    <div id="scrollHint" class="scroll-hint">
+       <i class="ri-arrow-down-circle-line" style="font-size: 1.5rem; color: #fff;"></i>
+       <span>Scroll for Chat</span>
+    </div>
 
     <header class="app-header">
       <div class="logo">
@@ -106,7 +115,9 @@
             <span id="remoteName" class="label">Stranger</span>
             
             <div id="waitMsg" class="waiting-layer">
-              <div class="loader"></div>
+              <div class="radar">
+                <i class="ri-search-2-line radar-icon"></i>
+              </div>
               <p>Searching...</p>
             </div>
             
@@ -154,6 +165,10 @@
     </main>
 
     <aside id="userSidebar" class="sidebar">
+      <div id="sidebarHint" class="sidebar-hint">
+        Tap a name to connect!
+      </div>
+
       <div class="sidebar-header">
         <h3>Online Users</h3>
         <button id="closeSidebar"><i class="ri-close-line"></i></button>

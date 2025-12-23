@@ -6,6 +6,8 @@ const joinBtn = document.getElementById("joinBtn");
 const nameInput = document.getElementById("nameInput");
 
 const app = document.getElementById("app");
+const scrollHint = document.getElementById("scrollHint");
+const sidebarHint = document.getElementById("sidebarHint");
 
 const startBtn = document.getElementById("startBtn");
 const nextBtn = document.getElementById("nextBtn");
@@ -17,6 +19,8 @@ const statusDot = document.getElementById("statusDot");
 
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
+// We need the parent wrapper to apply the border
+const remoteVideoWrapper = remoteVideo.parentElement; 
 const waitMsg = document.getElementById("waitMsg"); 
 
 const localNameLabel = document.getElementById("localName");
@@ -48,7 +52,7 @@ let peer = null;
 let myRole = null;
 let myName = null;
 let incomingRequestId = null; 
-let outgoingRequestTargetId = null; // NEW: Track who we sent a request to
+let outgoingRequestTargetId = null;
 
 const ice = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
@@ -67,49 +71,103 @@ async function getMedia() {
   }
 }
 
+// ===== HELPER: FORMAT TIME =====
+function formatTime(ms) {
+  if (isNaN(ms) || ms < 0) return "0:00";
+  const seconds = Math.floor(ms / 1000);
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ===== LIVE TIMER =====
+setInterval(() => {
+  const timers = document.querySelectorAll('.u-timer');
+  const now = Date.now();
+  timers.forEach(timer => {
+    const joinTime = parseInt(timer.getAttribute('data-join-time'));
+    if (joinTime) {
+      const timeOnline = now - joinTime;
+      timer.innerHTML = `<i class="ri-time-line"></i> ${formatTime(timeOnline)}`;
+    }
+  });
+}, 1000);
+
 // ===== UI LOGIC =====
 findBtn.onclick = () => { 
   userSidebar.classList.add("active");
   document.body.classList.add("lock-scroll");
+  
+  if (!localStorage.getItem("omegle_sidebar_hint_seen")) {
+      sidebarHint.style.display = "block";
+      localStorage.setItem("omegle_sidebar_hint_seen", "true");
+  }
 };
 
 closeSidebar.onclick = () => { 
   userSidebar.classList.remove("active");
   document.body.classList.remove("lock-scroll");
+  sidebarHint.style.display = "none";
 };
+
+document.addEventListener('touchstart', () => {
+  scrollHint.style.display = 'none';
+}, { once: true });
+
+// ===== JOIN =====
+joinBtn.onclick = () => {
+  if (!nameInput.value.trim()) return;
+  const rawName = nameInput.value.trim();
+  socket.emit("join", rawName);
+};
+
+socket.on("join-success", (data) => {
+  myName = data.name;
+  localNameLabel.textContent = myName + " (You)";
+  nameBox.style.display = "none";
+  app.style.display = "block";
+  findBtn.disabled = false;
+  window.scrollTo(0, 0);
+});
 
 // ===== RENDER USER LIST =====
 socket.on("update-user-list", (users) => {
   userListContainer.innerHTML = "";
+  
   users.forEach(user => {
     if (user.id === socket.id) return; 
     if (!user.name) return; 
 
     const item = document.createElement("div");
-    item.className = "user-item";
+    item.className = `user-item ${user.isCreator ? 'is-creator' : ''}`;
+    
     const isClickable = user.status === 'searching';
     const statusText = user.status === 'searching' ? 'Finding...' : 'Busy';
     const statusClass = user.status === 'searching' ? 'status-finding' : 'status-busy';
+    const timeOnline = formatTime(Date.now() - user.joinTime);
+
+    const nameDisplay = user.isCreator 
+      ? `<span class="creator-name">${user.name}</span> <span class="creator-tag">Creator</span>` 
+      : `<span>${user.name}</span>`;
 
     item.innerHTML = `
       <div class="user-info">
-        <i class="ri-user-line"></i>
-        <span>${user.name}</span>
+        <div class="u-top"><i class="ri-user-line"></i>${nameDisplay}</div>
+        <div class="u-timer" data-join-time="${user.joinTime}">
+          <i class="ri-time-line"></i> ${timeOnline}
+        </div>
       </div>
       <div class="status-badge ${statusClass}">${statusText}</div>
     `;
 
     if (isClickable) {
       item.onclick = () => {
-        // Save target ID so we can cancel later
+        sidebarHint.style.display = "none";
         outgoingRequestTargetId = user.id;
-
         outgoingTargetName.textContent = user.name;
         outgoingModal.style.display = "flex";
-        
         userSidebar.classList.remove("active"); 
         document.body.classList.remove("lock-scroll");
-        
         socket.emit("direct-connect", user.id);
       };
     } else {
@@ -124,24 +182,21 @@ socket.on("update-user-list", (users) => {
   }
 });
 
-// ===== HANDLE OUTGOING CANCEL =====
+// ===== HANDLE REQUESTS =====
 cancelRequestBtn.onclick = () => {
   outgoingModal.style.display = "none";
-  // Tell server to notify the other person
   if (outgoingRequestTargetId) {
     socket.emit("cancel-request", outgoingRequestTargetId);
     outgoingRequestTargetId = null;
   }
 };
 
-// ===== HANDLE INCOMING REQUESTS =====
 socket.on("incoming-request", (data) => {
   incomingRequestId = data.fromId;
   requesterName.textContent = data.fromName;
   requestModal.style.display = "flex"; 
 });
 
-// NEW: Handle when sender cancels
 socket.on("request-cancelled", (data) => {
   requestModal.style.display = "none";
   alert(`Request cancelled by ${data.fromName}.`);
@@ -167,18 +222,6 @@ socket.on("request-declined", () => {
   status.textContent = "Click Start or Find";
 });
 
-// ===== JOIN =====
-joinBtn.onclick = () => {
-  if (!nameInput.value.trim()) return;
-  myName = nameInput.value.trim();
-  socket.emit("join", myName);
-  localNameLabel.textContent = myName + " (You)";
-  nameBox.style.display = "none";
-  app.style.display = "block";
-  findBtn.disabled = false;
-  window.scrollTo(0, 0);
-};
-
 // ===== START =====
 startBtn.onclick = async () => {
   startBtn.disabled = true;
@@ -187,39 +230,41 @@ startBtn.onclick = async () => {
   stopBtn.disabled = false;
   status.textContent = "Looking for someone...";
   statusDot.className = "dot"; 
-
   await getMedia();
   socket.emit("find-partner");
 };
 
-// ===== WEB RTC CORE =====
+// ===== PEER =====
 function createPeer() {
   if (peer) return;
   peer = new RTCPeerConnection(ice);
-  
-  if (localStream) {
-      localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
-  }
-
+  if (localStream) localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
   peer.ontrack = e => { 
     remoteVideo.srcObject = e.streams[0]; 
     waitMsg.style.display = "none"; 
   };
-
-  peer.onicecandidate = e => { 
-    if (e.candidate) socket.emit("signal", { candidate: e.candidate }); 
-  };
+  peer.onicecandidate = e => { if (e.candidate) socket.emit("signal", { candidate: e.candidate }); };
 }
 
-// ===== MATCH FOUND =====
-socket.on("partner-found", async ({ role, partnerName }) => {
+// ===== MATCH FOUND (NEW: CREATOR LOGIC) =====
+socket.on("partner-found", async ({ role, partnerName, isPartnerCreator }) => {
   myRole = role;
+  
+  // 1. UPDATE NAME
+  if (isPartnerCreator) {
+    remoteNameLabel.innerHTML = `${partnerName} <span class="creator-badge-video">CREATOR</span>`;
+    remoteNameLabel.classList.add('is-creator');
+    remoteVideoWrapper.classList.add('creator-border');
+  } else {
+    remoteNameLabel.textContent = partnerName;
+    remoteNameLabel.classList.remove('is-creator');
+    remoteVideoWrapper.classList.remove('creator-border');
+  }
+  
   status.textContent = `Talking to: ${partnerName}`;
-  remoteNameLabel.textContent = partnerName;
   statusDot.className = "dot active"; 
   messageInput.disabled = false;
   
-  // Close Modals
   userSidebar.classList.remove("active");
   document.body.classList.remove("lock-scroll");
   requestModal.style.display = "none"; 
@@ -240,25 +285,19 @@ socket.on("partner-found", async ({ role, partnerName }) => {
   stopBtn.disabled = false;
 });
 
-// ===== SIGNALING =====
+// ===== SIGNALING & CHAT =====
 socket.on("signal", async data => {
-  if (!peer) {
-    await getMedia();
-    createPeer();
-  }
-
+  if (!peer) { await getMedia(); createPeer(); }
   if (data.offer) {
     await peer.setRemoteDescription(data.offer);
     const answer = await peer.createAnswer();
     await peer.setLocalDescription(answer);
     socket.emit("signal", { answer });
   }
-
   if (data.answer) await peer.setRemoteDescription(data.answer);
   if (data.candidate) await peer.addIceCandidate(data.candidate);
 });
 
-// ===== CHAT =====
 const scrollToBottom = () => { messages.scrollTop = messages.scrollHeight; };
 const appendMessage = (html) => { messages.insertAdjacentHTML('beforeend', html); scrollToBottom(); };
 
@@ -278,7 +317,7 @@ socket.on("chat-message", data => {
   appendMessage(`<div class="msg-box stranger-msg"><b>${data.from}:</b> ${data.text}</div>`);
 });
 
-// ===== CONTROLS =====
+// ===== RESET =====
 nextBtn.onclick = () => {
   socket.emit("next");
   resetCall();
@@ -292,9 +331,10 @@ stopBtn.onclick = () => {
 };
 
 socket.on("partner-left", () => {
-  status.textContent = "Stranger disconnected";
+  status.textContent = "Stranger disconnected. Searching...";
   statusDot.className = "dot";
   resetCall();
+  socket.emit("find-partner");
 });
 
 socket.on("online-count", count => {
@@ -306,12 +346,16 @@ socket.on("error-msg", (msg) => {
   alert(msg); 
 });
 
-// ===== RESET HELPERS =====
 function resetCall() {
   if (peer) { peer.close(); peer = null; }
   remoteVideo.srcObject = null;
   waitMsg.style.display = "flex"; 
+  
+  // RESET UI
   remoteNameLabel.textContent = "Stranger";
+  remoteNameLabel.classList.remove('is-creator');
+  remoteVideoWrapper.classList.remove('creator-border');
+  
   messages.innerHTML = `<div class="system-msg">Chat cleared. Searching...</div>`;
   messageInput.disabled = true;
 }
