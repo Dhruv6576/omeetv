@@ -119,11 +119,17 @@
           <div class="video-wrapper">
             <span id="remoteName" class="label">Stranger</span>
 
-            <div id="waitMsg" class="waiting-layer">
-              <div class="radar">
-                <i class="ri-search-2-line radar-icon"></i>
+            <div id="waitMsg" class="waiting-layer initial-state">
+              <div class="initial-message">
+                <i class="ri-play-circle-line"></i>
+                <p>Click <strong>Start</strong> to connect with people</p>
               </div>
-              <p>Searching...</p>
+              <div class="searching-message">
+                <div class="radar">
+                  <i class="ri-search-2-line radar-icon"></i>
+                </div>
+                <p>Searching...</p>
+              </div>
             </div>
 
             <video id="remoteVideo" autoplay playsinline></video>
