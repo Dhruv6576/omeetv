@@ -375,6 +375,9 @@ startBtn.onclick = async () => {
   status.textContent = "Looking for someone...";
   statusDot.className = "dot";
   
+  // Show searching state
+  waitMsg.classList.add("searching");
+  
   const stream = await getMedia();
   if (stream) {
     socket.emit("find-partner");
@@ -497,6 +500,10 @@ socket.on("partner-left", () => {
   playSound("sfx-left");
   status.textContent = "Stranger disconnected. Searching...";
   resetCall();
+  
+  // Show searching state since we're actively looking again
+  waitMsg.classList.add("searching");
+  
   socket.emit("find-partner");
   showMobileNotification("Disconnected", "Partner disconnected. Searching for new partner...", "ri-user-unfollow-fill", "var(--red)");
 });
@@ -526,6 +533,10 @@ function fullReset() {
   findBtn.disabled = false;
   nextBtn.disabled = true;
   stopBtn.disabled = true;
+  
+  // Reset to initial state
+  waitMsg.classList.remove("searching");
+  
   messages.innerHTML = `<div class="system-msg">Welcome! Press Start to find a partner.</div>`;
 }
 
