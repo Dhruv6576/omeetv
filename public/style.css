@@ -604,7 +604,7 @@ video {
 .waiting-layer {
   position: absolute; 
   inset: 0; 
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(15, 23, 42, 0.9));
+  background: transparent;
   display: flex; 
   flex-direction: column; 
   align-items: center; 
@@ -621,55 +621,171 @@ video {
   to { opacity: 1; }
 }
 
+/* Initial State Message */
+.initial-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: message-float 3s ease-in-out infinite;
+}
+
+.initial-message i {
+  font-size: 5rem;
+  color: var(--accent);
+  animation: icon-float 3s infinite ease-in-out;
+}
+
+.initial-message p {
+  font-size: 1.2rem;
+  text-align: center;
+  background: linear-gradient(90deg, var(--accent), var(--muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 500;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.initial-message strong {
+  color: var(--accent);
+}
+
+@keyframes message-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Searching Message */
+.searching-message {
+  display: none !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.waiting-layer.searching .initial-message {
+  display: none !important;
+}
+
+.waiting-layer.searching .searching-message {
+  display: flex !important;
+}
+
 .radar {
   position: relative; 
-  width: 120px; 
-  height: 120px; 
+  width: 140px; 
+  height: 140px; 
   margin-bottom: 25px;
   display: flex; 
   justify-content: center; 
   align-items: center;
 }
 
-.radar::before, .radar::after {
+.radar::before {
+  content: '🔍'; 
+  position: absolute; 
+  font-size: 4rem;
+  animation: magnifying-search 3s ease-in-out infinite;
+  z-index: 2;
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+
+.radar::after {
   content: ''; 
   position: absolute; 
   width: 100%; 
   height: 100%;
   border-radius: 50%; 
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    var(--accent),
-    var(--accent),
-    transparent
-  );
-  mask: radial-gradient(circle, transparent 40%, black 41%);
-  animation: radar-rotate 4s linear infinite;
+  border: 2px solid var(--accent);
+  opacity: 0.2;
+  animation: radar-pulse 2s ease-in-out infinite;
 }
 
-.radar::before {
-  animation-delay: 0.5s;
-  opacity: 0.7;
+@keyframes magnifying-search {
+  0% {
+    transform: translate(-20px, -25px) scale(1);
+    opacity: 1;
+  }
+  12% {
+    transform: translate(18px, -35px) scale(1.05);
+    opacity: 0.95;
+  }
+  24% {
+    transform: translate(35px, 8px) scale(1.08);
+    opacity: 0.9;
+  }
+  36% {
+    transform: translate(12px, 32px) scale(1.1);
+    opacity: 0.92;
+  }
+  48% {
+    transform: translate(-28px, 28px) scale(1.05);
+    opacity: 0.95;
+  }
+  60% {
+    transform: translate(-38px, -8px) scale(1.08);
+    opacity: 0.9;
+  }
+  72% {
+    transform: translate(-15px, -32px) scale(1.06);
+    opacity: 0.93;
+  }
+  84% {
+    transform: translate(25px, -12px) scale(1.09);
+    opacity: 0.94;
+  }
+  100% {
+    transform: translate(-20px, -25px) scale(1);
+    opacity: 1;
+  }
 }
 
-.radar::after {
-  animation-delay: 1s;
-  opacity: 0.4;
+@keyframes radar-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.2;
+    border-color: var(--accent);
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.1;
+    border-color: var(--accent);
+  }
 }
 
-@keyframes radar-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes searching-icon-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes searching-icon-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .radar-icon { 
-  z-index: 2; 
-  font-size: 3rem; 
+  z-index: 3; 
+  font-size: 1.5rem; 
   color: var(--accent);
-  animation: 
-    icon-float 2s infinite ease-in-out,
-    icon-pulse 2s infinite alternate;
+  position: absolute;
+  animation: searching-icon-pulse 2s ease-in-out infinite, searching-icon-rotate 4s linear infinite;
+  filter: drop-shadow(0 0 8px var(--accent-glow)) drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));
+  opacity: 0.9;
 }
 
 .waiting-layer p {
