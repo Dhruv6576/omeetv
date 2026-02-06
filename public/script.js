@@ -391,10 +391,16 @@ function createPeer() {
   peer = new RTCPeerConnection(ice);
   if (localStream) localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
   peer.ontrack = e => { 
-    remoteVideo.srcObject = e.streams[0]; 
-    waitMsg.style.display = "none"; 
+    remoteVideo.srcObject = e.streams[0];
+    remoteVideoWrapper.classList.remove('loading');
+    waitMsg.style.display = "none";
   };
   peer.onicecandidate = e => { if (e.candidate) socket.emit("signal", { candidate: e.candidate }); };
+  peer.onconnectionstatechange = () => {
+    if (peer.connectionState === 'connected' || peer.connectionState === 'completed') {
+      console.log('WebRTC Connected');
+    }
+  };
 }
 
 // ===== MATCH FOUND =====
@@ -431,6 +437,7 @@ socket.on("partner-found", async ({ role, partnerName, isPartnerCreator }) => {
   showMobileNotification("Connected", `You're now talking with ${partnerName}${creatorMsg}`, "ri-user-voice-fill", isPartnerCreator ? "var(--red)" : "var(--green)");
   
   await getMedia();
+  remoteVideoWrapper.classList.add('loading');
   createPeer();
   
   if (myRole === "caller") {
@@ -447,7 +454,11 @@ socket.on("partner-found", async ({ role, partnerName, isPartnerCreator }) => {
 
 // ===== SIGNALING & CHAT =====
 socket.on("signal", async data => {
-  if (!peer) { await getMedia(); createPeer(); }
+  if (!peer) { 
+    await getMedia(); 
+    remoteVideoWrapper.classList.add('loading');
+    createPeer(); 
+  }
   if (data.offer) {
     await peer.setRemoteDescription(data.offer);
     const answer = await peer.createAnswer();
@@ -515,6 +526,7 @@ socket.on("online-count", count => {
 function resetCall() {
   if (peer) { peer.close(); peer = null; }
   remoteVideo.srcObject = null;
+  remoteVideoWrapper.classList.remove('loading');
   waitMsg.style.display = "flex";
   
   // Reset UI
