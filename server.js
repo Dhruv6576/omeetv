@@ -137,7 +137,11 @@ io.on("connection", socket => {
   }
 
   socket.on("signal", data => {
-    if (socket.partner) socket.partner.emit("signal", data);
+    if (socket.partner) {
+      socket.partner.emit("signal", data);
+    } else {
+      console.log(`[Signal] Signal dropped for ${socket.id} (no partner assigned)`);
+    }
   });
 
   socket.on("chat-message", msg => {
